@@ -1,4 +1,4 @@
 package com.utcn.demo.entity;
 
-public class User {
+public class AnswerVoteKey {
 }
