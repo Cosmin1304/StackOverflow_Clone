@@ -1,4 +1,7 @@
 package com.utcn.demo.repository;
 
-public interface RoleRepository {
+import com.utcn.demo.entity.Role;
+import org.springframework.data.repository.CrudRepository;
+
+public interface RoleRepository extends CrudRepository<Role, Long> {
 }
