@@ -1,25 +1,31 @@
 package com.utcn.demo.entity;
 
+
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.util.HashSet;
-import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 @Entity
-@Table(name = "tags")
+@Table(name="tags")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Tag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "tag_id")
+    private Long tagId;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
-    // Relația inversă M:N cu Topic (mappedBy arată spre proprietatea 'tags' din clasa Topic)
     @ManyToMany(mappedBy = "tags")
-    private Set<Topic> topics = new HashSet<>();
+    private List<Question> questions;
 }
