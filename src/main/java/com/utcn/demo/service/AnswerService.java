@@ -1,9 +1,9 @@
 package com.utcn.demo.service;
 
 import com.utcn.demo.entity.Answer;
-import com.utcn.demo.entity.Question;
+import com.utcn.demo.entity.Topic;
 import com.utcn.demo.repository.AnswerRepository;
-import com.utcn.demo.repository.QuestionRepository;
+import com.utcn.demo.repository.TopicRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,42 +17,40 @@ public class AnswerService {
     private AnswerRepository answerRepository;
 
     @Autowired
-    private QuestionRepository questionRepository;
+    private TopicRepository topicRepository;
 
     @Transactional
-    public Answer addAnswer (Long questionId, Answer answer) {
-        Question question = questionRepository.findById(questionId)
-                .orElseThrow(()->new RuntimeException("Question not found"));
+    public Answer addAnswer(Long topicId, Answer answer) {
+        Topic topic = topicRepository.findById(topicId)
+                .orElseThrow(() -> new RuntimeException("Topic not found"));
 
-        if (question.getStatus() == Question.QuestionStatus.SOLVED) {
-            throw new RuntimeException("This question is already solved, no more answers can be added");
+        if ("SOLVED".equals(topic.getStatus())) {
+            throw new RuntimeException("This topic is already solved, no more answers can be added");
         }
 
-        answer.setCreationDateTime(LocalDateTime.now());
-        answer.setQuestion(question);
-        answer.setLikeCount(0);
+        answer.setCreatedAt(LocalDateTime.now());
+        answer.setTopic(topic);
 
-        if (question.getAnswers().isEmpty() && question.getStatus().equals(Question.QuestionStatus.RECEIVED)) {
-            question.setStatus(Question.QuestionStatus.IN_PROGRESS);
-            questionRepository.save(question);
+        if (topic.getAnswers().isEmpty() && "RECEIVED".equals(topic.getStatus())) {
+            topic.setStatus("IN_PROGRESS");
+            topicRepository.save(topic);
         }
 
         return answerRepository.save(answer);
-
     }
 
-    public List<Answer> getAnswersByQuestion(Long questionId) {
-        return answerRepository.findByQuestion_QuestionIdOrderByLikeCountDesc(questionId);
+    public List<Answer> getAnswersByTopic(Long topicId) {
+        return answerRepository.findByTopic_Id(topicId);
     }
 
-    public Answer updateAnswer(Long answerId, String newText, Long currentUserId) {
+    public Answer updateAnswer(Long answerId, String newTextContent, Long currentUserId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new RuntimeException("Answer not found"));
 
-        if (!answer.getUser().getUserId().equals(currentUserId)) {
+        if (!answer.getAuthor().getId().equals(currentUserId)) {
             throw new RuntimeException("Only the author can edit this answer!");
         }
-        answer.setText(newText);
+        answer.setTextContent(newTextContent);
         return answerRepository.save(answer);
     }
 
@@ -60,7 +58,7 @@ public class AnswerService {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new RuntimeException("Answer not found"));
 
-        if (!answer.getUser().getUserId().equals(currentUserId)) {
+        if (!answer.getAuthor().getId().equals(currentUserId)) {
             throw new RuntimeException("Only the author can delete this answer!");
         }
 
