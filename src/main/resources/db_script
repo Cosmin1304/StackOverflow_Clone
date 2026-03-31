@@ -1,0 +1,131 @@
+create table roles
+(
+    id        bigserial
+        primary key,
+    role_name varchar(50) not null
+        unique
+);
+
+alter table roles
+    owner to alexmldvn;
+
+create table users
+(
+    id            bigserial
+        primary key,
+    username      varchar(50)  not null
+        unique,
+    email         varchar(100) not null
+        unique,
+    password_hash varchar(255) not null,
+    score         numeric(10, 2) default 0.00,
+    is_banned     boolean        default false
+);
+
+alter table users
+    owner to alexmldvn;
+
+create table user_roles
+(
+    user_id bigint not null
+        references users
+            on delete cascade,
+    role_id bigint not null
+        references roles
+            on delete cascade,
+    primary key (user_id, role_id)
+);
+
+alter table user_roles
+    owner to alexmldvn;
+
+create table tags
+(
+    id   bigserial
+        primary key,
+    name varchar(50) not null
+        unique
+);
+
+alter table tags
+    owner to alexmldvn;
+
+create table topics
+(
+    id           bigserial
+        primary key,
+    author_id    bigint       not null
+        references users
+            on delete cascade,
+    title        varchar(255) not null,
+    text_content text         not null,
+    picture_url  varchar(500),
+    status       varchar(50) default 'RECEIVED'::character varying,
+    created_at   timestamp   default CURRENT_TIMESTAMP
+);
+
+alter table topics
+    owner to alexmldvn;
+
+create table topic_tags
+(
+    topic_id bigint not null
+        references topics
+            on delete cascade,
+    tag_id   bigint not null
+        references tags
+            on delete cascade,
+    primary key (topic_id, tag_id)
+);
+
+alter table topic_tags
+    owner to alexmldvn;
+
+create table answers
+(
+    id           bigserial
+        primary key,
+    topic_id     bigint not null
+        references topics
+            on delete cascade,
+    author_id    bigint not null
+        references users
+            on delete cascade,
+    text_content text   not null,
+    picture_url  varchar(500),
+    created_at   timestamp default CURRENT_TIMESTAMP
+);
+
+alter table answers
+    owner to alexmldvn;
+
+create table topic_votes
+(
+    topic_id   bigint  not null
+        references topics
+            on delete cascade,
+    user_id    bigint  not null
+        references users
+            on delete cascade,
+    vote_value integer not null,
+    primary key (topic_id, user_id)
+);
+
+alter table topic_votes
+    owner to alexmldvn;
+
+create table answer_votes
+(
+    answer_id  bigint  not null
+        references answers
+            on delete cascade,
+    user_id    bigint  not null
+        references users
+            on delete cascade,
+    vote_value integer not null,
+    primary key (answer_id, user_id)
+);
+
+alter table answer_votes
+    owner to alexmldvn;
+
