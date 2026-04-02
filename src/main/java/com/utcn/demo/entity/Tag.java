@@ -7,19 +7,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "tags")
+@Table(name="tags")
 @Getter
 @Setter
 public class Tag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "tag_id")
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "name", unique = true, nullable = false)
     private String name;
 
-    // Relația inversă M:N cu Topic (mappedBy arată spre proprietatea 'tags' din clasa Topic)
+    // Relația M:N a fost actualizată pentru a pointa către TOPIC, nu Question
     @ManyToMany(mappedBy = "tags")
     private Set<Topic> topics = new HashSet<>();
 }
