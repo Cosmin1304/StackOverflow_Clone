@@ -2,6 +2,7 @@ package com.utcn.demo.service;
 
 import com.utcn.demo.entity.Topic;
 import com.utcn.demo.entity.Tag;
+import com.utcn.demo.entity.User;
 import com.utcn.demo.repository.TopicRepository;
 import com.utcn.demo.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,9 @@ public class TopicService {
     public List<Topic> searchByTitle(String title) {
         return topicRepository.findByTitleContainingIgnoreCase(title);
     }
+    public List<Topic> getTopicsByAuthor(User author) {
+        return topicRepository.findByAuthor(author);
+    }
     public void deleteTopic(Long id, Long currentUserId) {
         Topic topic = topicRepository.findById(id).orElseThrow(()-> new RuntimeException("topic not found"));
 
@@ -50,5 +54,22 @@ public class TopicService {
             throw new RuntimeException("Only the author can delete this topic");
         }
         topicRepository.delete(topic);
+    }
+    public Topic updateTopic(Long topicId, String newTitle, String newTextContent, Long currentUserId) {
+        Topic topic = topicRepository.findById(topicId)
+                .orElseThrow(() -> new RuntimeException("Topic not found"));
+
+        if (!currentUserId.equals(topic.getAuthor().getId())) {
+            throw new RuntimeException("Only the author can edit this topic");
+        }
+
+        if (newTitle != null && !newTitle.trim().isEmpty()) {
+            topic.setTitle(newTitle);
+        }
+        if (newTextContent != null && !newTextContent.trim().isEmpty()) {
+            topic.setTextContent(newTextContent);
+        }
+
+        return topicRepository.save(topic);
     }
 }
