@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +18,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User registerUser (User user) {
+    public User registerUser(User user) {
         String encodedPassword = passwordEncoder.encode(user.getPasswordHash());
         user.setPasswordHash(encodedPassword);
 
@@ -26,15 +27,17 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Optional<User> findByUsername (String username) {
+    public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        List<User> users = new ArrayList<>();
+        userRepository.findAll().forEach(users::add);
+        return users;
     }
 
-    public void deleteUser (Long userId) {
+    public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
     }
 

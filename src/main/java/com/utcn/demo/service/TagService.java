@@ -5,6 +5,7 @@ import com.utcn.demo.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,8 +22,9 @@ public class TagService {
     }
 
     public List<Tag> getAllTags() {
-        return tagRepository.findAll();
+        List<Tag> tags = new ArrayList<>();
+        tagRepository.findAll().forEach(tags::add);
+        return tags;
     }
 
-    
 }
