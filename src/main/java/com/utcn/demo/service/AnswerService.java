@@ -19,10 +19,11 @@ public class AnswerService {
     @Autowired
     private TopicRepository topicRepository;
 
+
     @Transactional
-    public Answer addAnswer(Long topicId, Answer answer) {
+    public Answer addAnswer (Long topicId, Answer answer) {
         Topic topic = topicRepository.findById(topicId)
-                .orElseThrow(() -> new RuntimeException("Topic not found"));
+                .orElseThrow(()->new RuntimeException("Topic not found"));
 
         if ("SOLVED".equals(topic.getStatus())) {
             throw new RuntimeException("This topic is already solved, no more answers can be added");
@@ -37,20 +38,22 @@ public class AnswerService {
         }
 
         return answerRepository.save(answer);
+
     }
 
     public List<Answer> getAnswersByTopic(Long topicId) {
-        return answerRepository.findByTopic_Id(topicId);
-    }
+        Topic topic = topicRepository.findById(topicId)
+                .orElseThrow(() -> new RuntimeException("Topic not found"));
+        return answerRepository.findByTopicOrderByCreatedAtDesc(topic);    }
 
-    public Answer updateAnswer(Long answerId, String newTextContent, Long currentUserId) {
+    public Answer updateAnswer(Long answerId, String newText, Long currentUserId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new RuntimeException("Answer not found"));
 
         if (!answer.getAuthor().getId().equals(currentUserId)) {
             throw new RuntimeException("Only the author can edit this answer!");
         }
-        answer.setTextContent(newTextContent);
+        answer.setTextContent(newText);
         return answerRepository.save(answer);
     }
 

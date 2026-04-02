@@ -45,9 +45,4 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roles = new ArrayList<>();
-
-    //pentru functionalitatea user service
-    @Transient  //metodele se set si get vor fi generate, dar nu va avea o coloana in tabel
-    private String password;
-
 }

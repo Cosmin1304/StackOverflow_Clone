@@ -1,11 +1,20 @@
 package com.utcn.demo.repository;
 
 import com.utcn.demo.entity.Topic;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.utcn.demo.entity.User;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
-public interface TopicRepository extends JpaRepository<Topic, Long> {
+@Repository
+public interface TopicRepository extends CrudRepository<Topic, Long> {
+
     List<Topic> findAllByOrderByCreatedAtDesc();
-    List<Topic> findByTags_Name(String name);
+
     List<Topic> findByTitleContainingIgnoreCase(String title);
+
+    List<Topic> findByAuthor(User author);
+
+    List<Topic> findByTags_Name(String tagName);
 }

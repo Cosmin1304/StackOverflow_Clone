@@ -1,9 +1,14 @@
 package com.utcn.demo.repository;
 
 import com.utcn.demo.entity.Answer;
-import org.springframework.data.jpa.repository.JpaRepository;
+import com.utcn.demo.entity.Topic;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
-public interface AnswerRepository extends JpaRepository<Answer, Long> {
-    List<Answer> findByTopic_Id(Long topicId);
+@Repository
+public interface AnswerRepository extends CrudRepository<Answer, Long> {
+
+    List<Answer> findByTopicOrderByCreatedAtDesc(Topic topic);
 }
