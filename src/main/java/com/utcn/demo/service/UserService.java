@@ -18,10 +18,10 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public User registerUser (User user) {
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+        String encodedPassword = passwordEncoder.encode(user.getPasswordHash());
+        user.setPasswordHash(encodedPassword);
 
-        user.setScore(0.0);
+        user.setScore(java.math.BigDecimal.ZERO);
 
         return userRepository.save(user);
     }
@@ -44,8 +44,8 @@ public class UserService {
 
         user.setUsername(userDetails.getUsername());
 
-        if (userDetails.getPassword() != null && !userDetails.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(userDetails.getPassword()));
+        if (userDetails.getPasswordHash() != null && !userDetails.getPasswordHash().isEmpty()) {
+            user.setPasswordHash(passwordEncoder.encode(userDetails.getPasswordHash()));
         }
         return userRepository.save(user);
     }
