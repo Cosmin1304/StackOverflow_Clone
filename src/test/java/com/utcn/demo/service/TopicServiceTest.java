@@ -91,6 +91,20 @@ class TopicServiceTest {
     }
 
     @Test
+    void getTopicsByAuthor_ShouldReturnList() {
+        when(topicRepository.findByAuthor(author)).thenReturn(List.of(topic));
+
+        List<Topic> topics = topicService.getTopicsByAuthor(author);
+
+        assertNotNull(topics);
+        assertFalse(topics.isEmpty());
+        assertEquals(1, topics.size());
+        assertEquals(topic, topics.get(0));
+
+        verify(topicRepository, times(1)).findByAuthor(author);
+    }
+
+    @Test
     void deleteTopic_ShouldDelete_WhenUserIsAuthor() {
         when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
         doNothing().when(topicRepository).delete(topic);
@@ -107,5 +121,59 @@ class TopicServiceTest {
         assertThrows(RuntimeException.class, () -> {
             topicService.deleteTopic(1L, 2L);
         });
+    }
+
+    @Test
+    void updateTopic_ShouldUpdateFields_WhenUserIsAuthor() {
+        // Arrange
+        String newTitle = "Titlu Actualizat";
+        String newContent = "Continut nou pentru test";
+
+        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
+        when(topicRepository.save(any(Topic.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        Topic updatedTopic = topicService.updateTopic(1L, newTitle, newContent, 1L);
+
+        // Assert
+        assertNotNull(updatedTopic);
+        assertEquals(newTitle, updatedTopic.getTitle());
+        assertEquals(newContent, updatedTopic.getTextContent());
+        verify(topicRepository).save(topic);
+    }
+
+    @Test
+    void updateTopic_ShouldThrowException_WhenUserIsNotAuthor() {
+        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            topicService.updateTopic(1L, "Titlu", "Continut", 2L);
+        });
+
+        assertEquals("Only the author can edit this topic", exception.getMessage());
+        verify(topicRepository, never()).save(any());
+    }
+
+    @Test
+    void updateTopic_ShouldThrowException_WhenTopicNotFound() {
+        when(topicRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> {
+            topicService.updateTopic(99L, "Titlu", "Continut", 1L);
+        });
+    }
+
+    @Test
+    void updateTopic_ShouldNotUpdate_WhenFieldsAreEmpty() {
+        String originalTitle = "Original Title";
+        topic.setTitle(originalTitle);
+
+        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
+        when(topicRepository.save(any(Topic.class))).thenReturn(topic);
+
+        topicService.updateTopic(1L, "   ", null, 1L);
+
+        assertEquals(originalTitle, topic.getTitle());
+        verify(topicRepository).save(topic);
     }
 }
