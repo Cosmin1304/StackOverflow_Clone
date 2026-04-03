@@ -72,16 +72,22 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteUser_ShouldCallRepositoryDelete() {
+    void deleteUser_ShouldCallRepositoryDelete_WhenCurrentUserIsOwner() {
         doNothing().when(userRepository).deleteById(1L);
 
-        userService.deleteUser(1L);
+        userService.deleteUser(1L, 1L);
 
         verify(userRepository).deleteById(1L);
     }
 
     @Test
-    void updateUser_ShouldUpdateDetailsAndSave() {
+    void deleteUser_ShouldThrowException_WhenCurrentUserIsNotOwner() {
+        assertThrows(RuntimeException.class, () -> userService.deleteUser(1L, 2L));
+        verify(userRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void updateUser_ShouldUpdateDetailsAndSave_WhenCurrentUserIsOwner() {
         User updatedDetails = new User();
         updatedDetails.setUsername("newuser");
         updatedDetails.setPasswordHash("newRawPassword");
@@ -90,10 +96,15 @@ class UserServiceTest {
         when(passwordEncoder.encode("newRawPassword")).thenReturn("newHashedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        User result = userService.updateUser(1L, updatedDetails);
+        User result = userService.updateUser(1L, updatedDetails, 1L);
 
         assertEquals("newuser", result.getUsername());
         assertEquals("newHashedPassword", result.getPasswordHash());
         verify(userRepository).save(user);
+    }
+
+    @Test
+    void updateUser_ShouldThrowException_WhenCurrentUserIsNotOwner() {
+        assertThrows(RuntimeException.class, () -> userService.updateUser(1L, new User(), 2L));
     }
 }

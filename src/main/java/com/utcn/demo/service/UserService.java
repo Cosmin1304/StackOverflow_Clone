@@ -37,11 +37,18 @@ public class UserService {
         return users;
     }
 
-    public void deleteUser(Long userId) {
+    public void deleteUser(Long userId, Long currentUserId) {
+        if (!userId.equals(currentUserId)) {
+            throw new RuntimeException("Eroare de permisiune: Puteți șterge doar propriul cont!");
+        }
         userRepository.deleteById(userId);
     }
 
-    public User updateUser(Long id, User userDetails) {
+    public User updateUser(Long id, User userDetails, Long currentUserId) {
+        if (!id.equals(currentUserId)) {
+            throw new RuntimeException("Eroare de permisiune: Vă puteți edita doar propriul cont!");
+        }
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 

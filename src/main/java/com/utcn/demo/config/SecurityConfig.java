@@ -21,8 +21,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Dezactivăm CSRF pentru a putea testa API-ul ușor
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll() // Dacă folosești H2
-                        .anyRequest().authenticated() // Orice altă cerere necesită login
+                        .requestMatchers("/h2-console/**", "/api/users/register").permitAll() // H2 and Registration are
+                                                                                              // open
+                        .anyRequest().authenticated() // Any other request requires login
                 )
                 .formLogin(withDefaults()) // Activează formularul de login standard
                 .httpBasic(withDefaults()); // Activează și Basic Auth (util pentru Postman)
