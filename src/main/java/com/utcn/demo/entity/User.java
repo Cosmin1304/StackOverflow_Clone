@@ -28,7 +28,6 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    // Folosim BigDecimal pentru precizie la numere cu virgulă (ex: +2.5, -1.5)
     @Column(precision = 10, scale = 2)
     private BigDecimal score = BigDecimal.ZERO;
 
@@ -37,7 +36,6 @@ public class User {
 
     // --- RELAȚIILE ---
 
-    // Relația M:N cu Role (Un user poate fi USER și/sau MODERATOR)
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",

@@ -1,5 +1,6 @@
 package com.utcn.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class Answer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonProperty("text")
     @Column(name = "text_content", nullable = false, columnDefinition = "TEXT")
     private String textContent;
 
@@ -26,19 +28,14 @@ public class Answer {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // --- RELAȚIILE ---
-
-    // Relația M:1 cu Topic (Acest răspuns aparține de un singur Topic)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id", nullable = false)
     private Topic topic;
 
-    // Relația M:1 cu User (Acest răspuns a fost scris de un singur autor)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
-    // Relația 1:N cu Voturile Răspunsului
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AnswerVote> votes = new HashSet<>();
 }

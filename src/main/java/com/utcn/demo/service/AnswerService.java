@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.utcn.demo.dto.AnswerDTO;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 import java.util.List;
 
 @Service
@@ -19,11 +21,10 @@ public class AnswerService {
     @Autowired
     private TopicRepository topicRepository;
 
-
     @Transactional
-    public Answer addAnswer (Long topicId, Answer answer) {
+    public AnswerDTO addAnswer(Long topicId, Answer answer) {
         Topic topic = topicRepository.findById(topicId)
-                .orElseThrow(()->new RuntimeException("Topic not found"));
+                .orElseThrow(() -> new RuntimeException("Topic not found"));
 
         if ("SOLVED".equals(topic.getStatus())) {
             throw new RuntimeException("This topic is already solved, no more answers can be added");
@@ -37,16 +38,21 @@ public class AnswerService {
             topicRepository.save(topic);
         }
 
-        return answerRepository.save(answer);
+        return AnswerDTO.fromEntity(answerRepository.save(answer));
 
     }
 
-    public List<Answer> getAnswersByTopic(Long topicId) {
+    @Transactional(readOnly = true)
+    public List<AnswerDTO> getAnswersByTopic(Long topicId) {
         Topic topic = topicRepository.findById(topicId)
                 .orElseThrow(() -> new RuntimeException("Topic not found"));
-        return answerRepository.findByTopicOrderByCreatedAtDesc(topic);    }
+        return answerRepository.findByTopicOrderByCreatedAtDesc(topic).stream()
+                .map(AnswerDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
 
-    public Answer updateAnswer(Long answerId, String newText, Long currentUserId) {
+    @Transactional
+    public AnswerDTO updateAnswer(Long answerId, String newText, Long currentUserId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new RuntimeException("Answer not found"));
 
@@ -54,7 +60,7 @@ public class AnswerService {
             throw new RuntimeException("Only the author can edit this answer!");
         }
         answer.setTextContent(newText);
-        return answerRepository.save(answer);
+        return AnswerDTO.fromEntity(answerRepository.save(answer));
     }
 
     public void deleteAnswer(Long answerId, Long currentUserId) {

@@ -1,10 +1,9 @@
 package com.utcn.demo.controller;
 
-import com.utcn.demo.entity.Tag;
 import com.utcn.demo.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import com.utcn.demo.dto.TagDTO;
 import java.util.List;
 
 @RestController
@@ -15,12 +14,12 @@ public class TagController {
     private TagService tagService;
 
     @GetMapping
-    public List<Tag> getAllTags() {
+    public List<TagDTO> getAllTags() {
         return tagService.getAllTags();
     }
 
     @PostMapping("/{tagName}")
-    public Tag addTag(@PathVariable String tagName) {
+    public TagDTO addTag(@PathVariable String tagName) {
         return tagService.findOrCreateTag(tagName);
     }
 }

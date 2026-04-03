@@ -1,6 +1,7 @@
 package com.utcn.demo.service;
 
 import com.utcn.demo.entity.Tag;
+import com.utcn.demo.dto.TagDTO;
 import com.utcn.demo.repository.TagRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,9 +39,9 @@ class TagServiceTest {
     void findOrCreateTag_ShouldReturnExistingTag_WhenTagExists() {
         when(tagRepository.findByName("java")).thenReturn(Optional.of(tag));
 
-        Tag result = tagService.findOrCreateTag("java");
+        TagDTO result = tagService.findOrCreateTag("java");
 
-        assertEquals(tag.getId(), result.getId());
+        assertEquals(tag.getId(), result.id());
         verify(tagRepository, never()).save(any());
     }
 
@@ -52,9 +53,9 @@ class TagServiceTest {
         newTag.setName("python");
         when(tagRepository.save(any(Tag.class))).thenReturn(newTag);
 
-        Tag result = tagService.findOrCreateTag("python");
+        TagDTO result = tagService.findOrCreateTag("python");
 
-        assertEquals("python", result.getName());
+        assertEquals("python", result.name());
         verify(tagRepository).save(any(Tag.class));
     }
 
@@ -62,7 +63,7 @@ class TagServiceTest {
     void getAllTags_ShouldReturnList() {
         when(tagRepository.findAll()).thenReturn(List.of(tag));
 
-        List<Tag> tags = tagService.getAllTags();
+        List<TagDTO> tags = tagService.getAllTags();
 
         assertFalse(tags.isEmpty());
         assertEquals(1, tags.size());

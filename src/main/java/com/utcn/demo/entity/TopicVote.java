@@ -16,15 +16,15 @@ public class TopicVote {
     private TopicVoteKey id = new TopicVoteKey();
 
     @ManyToOne
-    @MapsId("topicId") // Leagă acest obiect de ID-ul din TopicVoteKey
+    @MapsId("topicId")
     @JoinColumn(name = "topic_id")
     private Topic topic;
 
     @ManyToOne
-    @MapsId("userId") // Leagă acest obiect de ID-ul din TopicVoteKey
+    @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name = "vote_value", nullable = false, length = 20)
-    private String voteType; // UPVOTE, DOWNVOTE, LIKE, DISLIKE
+    private String voteType;
 }

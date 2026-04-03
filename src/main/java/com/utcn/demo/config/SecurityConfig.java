@@ -19,14 +19,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Dezactivăm CSRF pentru a putea testa API-ul ușor
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**", "/api/users/register").permitAll() // H2 and Registration are
+                        .requestMatchers("/h2-console/**", "/api/users/register").permitAll()
                                                                                               // open
-                        .anyRequest().authenticated() // Any other request requires login
+                        .anyRequest().authenticated()
                 )
-                .formLogin(withDefaults()) // Activează formularul de login standard
-                .httpBasic(withDefaults()); // Activează și Basic Auth (util pentru Postman)
+                .formLogin(withDefaults())
+                .httpBasic(withDefaults());
 
         return http.build();
     }
@@ -36,13 +36,12 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Această metodă „conectează” Spring Security la baza ta de date
     @Bean
     public UserDetailsService userDetailsService(UserRepository userRepository) {
         return username -> userRepository.findByUsername(username)
                 .map(user -> User.builder()
                         .username(user.getUsername())
-                        .password(user.getPasswordHash()) // Folosește parola hash-uită din DB
+                        .password(user.getPasswordHash())
                         .roles("USER")
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("User nu a fost găsit: " + username));

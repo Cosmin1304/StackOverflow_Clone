@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.utcn.demo.dto.TopicDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TopicService {
@@ -22,7 +24,8 @@ public class TopicService {
     @Autowired
     private TagRepository tagRepository;
 
-    public Topic createTopic(Topic topic) {
+    @Transactional
+    public TopicDTO createTopic(Topic topic) {
         topic.setCreatedAt(LocalDateTime.now());
         topic.setStatus("RECEIVED");
 
@@ -33,29 +36,48 @@ public class TopicService {
                     .collect(Collectors.toSet());
             topic.setTags(managedTags);
         }
-        return topicRepository.save(topic);
+        return TopicDTO.fromEntity(topicRepository.save(topic));
     }
-    public List<Topic> getAllTopicsSorted( ) {
-        return topicRepository.findAllByOrderByCreatedAtDesc();
+
+    @Transactional(readOnly = true)
+    public List<TopicDTO> getAllTopicsSorted() {
+        return topicRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(TopicDTO::fromEntity)
+                .collect(Collectors.toList());
     }
-    public List<Topic> getTopicsByTag(String tagName) {
-        return topicRepository.findByTags_Name(tagName);
+
+    @Transactional(readOnly = true)
+    public List<TopicDTO> getTopicsByTag(String tagName) {
+        return topicRepository.findByTags_Name(tagName).stream()
+                .map(TopicDTO::fromEntity)
+                .collect(Collectors.toList());
     }
-    public List<Topic> searchByTitle(String title) {
-        return topicRepository.findByTitleContainingIgnoreCase(title);
+
+    @Transactional(readOnly = true)
+    public List<TopicDTO> searchByTitle(String title) {
+        return topicRepository.findByTitleContainingIgnoreCase(title).stream()
+                .map(TopicDTO::fromEntity)
+                .collect(Collectors.toList());
     }
-    public List<Topic> getTopicsByAuthor(User author) {
-        return topicRepository.findByAuthor(author);
+
+    @Transactional(readOnly = true)
+    public List<TopicDTO> getTopicsByAuthor(User author) {
+        return topicRepository.findByAuthor(author).stream()
+                .map(TopicDTO::fromEntity)
+                .collect(Collectors.toList());
     }
+
     public void deleteTopic(Long id, Long currentUserId) {
-        Topic topic = topicRepository.findById(id).orElseThrow(()-> new RuntimeException("topic not found"));
+        Topic topic = topicRepository.findById(id).orElseThrow(() -> new RuntimeException("topic not found"));
 
         if (!currentUserId.equals(topic.getAuthor().getId())) {
             throw new RuntimeException("Only the author can delete this topic");
         }
         topicRepository.delete(topic);
     }
-    public Topic updateTopic(Long topicId, String newTitle, String newTextContent, Long currentUserId) {
+
+    @Transactional
+    public TopicDTO updateTopic(Long topicId, String newTitle, String newTextContent, Long currentUserId) {
         Topic topic = topicRepository.findById(topicId)
                 .orElseThrow(() -> new RuntimeException("Topic not found"));
 
@@ -70,6 +92,6 @@ public class TopicService {
             topic.setTextContent(newTextContent);
         }
 
-        return topicRepository.save(topic);
+        return TopicDTO.fromEntity(topicRepository.save(topic));
     }
 }

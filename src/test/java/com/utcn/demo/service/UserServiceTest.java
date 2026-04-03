@@ -1,6 +1,7 @@
 package com.utcn.demo.service;
 
 import com.utcn.demo.entity.User;
+import com.utcn.demo.dto.UserDTO;
 import com.utcn.demo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +46,7 @@ class UserServiceTest {
         when(passwordEncoder.encode("rawPassword")).thenReturn("hashedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        User savedUser = userService.registerUser(user);
+        UserDTO savedUserDTO = userService.registerUser(user);
 
         assertEquals("hashedPassword", user.getPasswordHash());
         assertEquals(BigDecimal.ZERO, user.getScore());
@@ -56,17 +57,17 @@ class UserServiceTest {
     void findByUsername_ShouldReturnUser_WhenExists() {
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(user));
 
-        Optional<User> result = userService.findByUsername("testuser");
+        Optional<UserDTO> result = userService.findByUsername("testuser");
 
         assertTrue(result.isPresent());
-        assertEquals("testuser", result.get().getUsername());
+        assertEquals("testuser", result.get().username());
     }
 
     @Test
     void getAllUsers_ShouldReturnList() {
         when(userRepository.findAll()).thenReturn(List.of(user));
 
-        List<User> users = userService.getAllUsers();
+        List<UserDTO> users = userService.getAllUsers();
 
         assertFalse(users.isEmpty());
     }
@@ -96,10 +97,10 @@ class UserServiceTest {
         when(passwordEncoder.encode("newRawPassword")).thenReturn("newHashedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        User result = userService.updateUser(1L, updatedDetails, 1L);
+        UserDTO result = userService.updateUser(1L, updatedDetails, 1L);
 
-        assertEquals("newuser", result.getUsername());
-        assertEquals("newHashedPassword", result.getPasswordHash());
+        assertEquals("newuser", result.username());
+        assertEquals("newHashedPassword", user.getPasswordHash());
         verify(userRepository).save(user);
     }
 

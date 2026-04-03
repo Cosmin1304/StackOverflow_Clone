@@ -1,12 +1,13 @@
 package com.utcn.demo.controller;
 
 import com.utcn.demo.entity.Answer;
+import com.utcn.demo.entity.User;
 import com.utcn.demo.service.AnswerService;
 import com.utcn.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
-
+import com.utcn.demo.dto.AnswerDTO;
 import java.util.List;
 
 @RestController
@@ -20,24 +21,27 @@ public class AnswerController {
     private UserService userService;
 
     @GetMapping("/topic/{topicId}")
-    public List<Answer> getAnswersForTopic(@PathVariable Long topicId) {
+    public List<AnswerDTO> getAnswersForTopic(@PathVariable Long topicId) {
         return answerService.getAnswersByTopic(topicId);
     }
 
     @PostMapping("/topic/{topicId}")
-    public Answer addAnswer(@PathVariable Long topicId, @RequestBody Answer answer) {
+    public AnswerDTO addAnswer(@PathVariable Long topicId, @RequestBody Answer answer, Principal principal) {
+        User author = userService.findUserEntityByUsername(principal.getName())
+                .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
+        answer.setAuthor(author);
         return answerService.addAnswer(topicId, answer);
     }
 
     @PutMapping("/{id}")
-    public Answer updateAnswer(@PathVariable Long id, @RequestParam String newText, Principal principal) {
-        Long authorId = userService.findByUsername(principal.getName()).orElseThrow().getId();
+    public AnswerDTO updateAnswer(@PathVariable Long id, @RequestParam String newText, Principal principal) {
+        Long authorId = userService.findByUsername(principal.getName()).orElseThrow().id();
         return answerService.updateAnswer(id, newText, authorId);
     }
 
     @DeleteMapping("/{id}")
     public void deleteAnswer(@PathVariable Long id, Principal principal) {
-        Long authorId = userService.findByUsername(principal.getName()).orElseThrow().getId();
+        Long authorId = userService.findByUsername(principal.getName()).orElseThrow().id();
         answerService.deleteAnswer(id, authorId);
     }
 }
