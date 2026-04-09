@@ -1,0 +1,35 @@
+# --- IDE-uri ---
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# --- Build & Output (Java/Spring) ---
+target/
+build/
+*.jar
+*.war
+
+# --- Docker & Config ---
+.env
+docker-compose.yml
+docker-compose.override.yml
+*.log
+Dockerfile
+
+# --- Versiuni de Cod (Git) ---
+.git
+.gitignore
+.gitattributes
+
+# --- OS & Temporare ---
+.DS_Store
+Thumbs.db
+tmp/
+temp/
+
+# --- Datele bazei de date (IMPORTANT) ---
+# Nu vrei să incluzi datele persistente locale în imaginea de build
+postgres_data/
