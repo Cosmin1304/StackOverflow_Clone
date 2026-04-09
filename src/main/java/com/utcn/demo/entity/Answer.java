@@ -38,4 +38,5 @@ public class Answer {
 
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<AnswerVote> votes = new HashSet<>();
+
 }

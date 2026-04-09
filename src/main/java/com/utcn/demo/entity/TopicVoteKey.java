@@ -17,7 +17,6 @@ public class TopicVoteKey implements Serializable {
     @Column(name = "user_id")
     private Long userId;
 
-    // equals() și hashCode() sunt obligatorii în Java pentru clasele @Embeddable!
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

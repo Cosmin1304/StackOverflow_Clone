@@ -34,7 +34,6 @@ public class User {
     @Column(name = "is_banned")
     private Boolean isBanned = false;
 
-    // --- RELAȚIILE ---
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

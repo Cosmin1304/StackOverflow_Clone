@@ -27,4 +27,5 @@ public class AnswerVote {
 
     @Column(name = "vote_value", nullable = false, length = 20)
     private String voteType;
+
 }
