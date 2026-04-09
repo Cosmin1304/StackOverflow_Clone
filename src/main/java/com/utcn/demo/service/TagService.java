@@ -7,24 +7,30 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import com.utcn.demo.dto.TagDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TagService {
     @Autowired
     private TagRepository tagRepository;
 
-    public Tag findOrCreateTag(String tagName) {
-        return tagRepository.findByName(tagName).orElseGet(() -> {
+    @Transactional
+    public TagDTO findOrCreateTag(String tagName) {
+        Tag tag = tagRepository.findByName(tagName).orElseGet(() -> {
             Tag newTag = new Tag();
             newTag.setName(tagName);
             return tagRepository.save(newTag);
         });
+        return TagDTO.fromEntity(tag);
     }
 
-    public List<Tag> getAllTags() {
+    @Transactional(readOnly = true)
+    public List<TagDTO> getAllTags() {
         List<Tag> tags = new ArrayList<>();
         tagRepository.findAll().forEach(tags::add);
-        return tags;
+        return tags.stream().map(TagDTO::fromEntity).collect(Collectors.toList());
     }
 
 }

@@ -3,6 +3,7 @@ package com.utcn.demo.service;
 import com.utcn.demo.entity.Answer;
 import com.utcn.demo.entity.Topic;
 import com.utcn.demo.entity.User;
+import com.utcn.demo.dto.AnswerDTO;
 import com.utcn.demo.repository.AnswerRepository;
 import com.utcn.demo.repository.TopicRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,10 +58,10 @@ class AnswerServiceTest {
         when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
         when(answerRepository.save(any(Answer.class))).thenReturn(answer);
 
-        Answer savedAnswer = answerService.addAnswer(1L, answer);
+        AnswerDTO savedAnswerDTO = answerService.addAnswer(1L, answer);
 
-        assertNotNull(savedAnswer);
-        verify(topicRepository).save(topic); // Status implicitly changes to IN_PROGRESS
+        assertNotNull(savedAnswerDTO);
+        verify(topicRepository).save(topic);
         verify(answerRepository).save(answer);
         assertEquals("IN_PROGRESS", topic.getStatus());
     }
@@ -83,7 +84,7 @@ class AnswerServiceTest {
         when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
         when(answerRepository.findByTopicOrderByCreatedAtDesc(topic)).thenReturn(List.of(answer));
 
-        List<Answer> answers = answerService.getAnswersByTopic(1L);
+        List<AnswerDTO> answers = answerService.getAnswersByTopic(1L);
 
         assertFalse(answers.isEmpty());
         assertEquals(1, answers.size());
@@ -94,9 +95,9 @@ class AnswerServiceTest {
         when(answerRepository.findById(1L)).thenReturn(Optional.of(answer));
         when(answerRepository.save(any(Answer.class))).thenReturn(answer);
 
-        Answer updatedAnswer = answerService.updateAnswer(1L, "New text", 1L);
+        AnswerDTO updatedAnswerDTO = answerService.updateAnswer(1L, "New text", 1L);
 
-        assertNotNull(updatedAnswer);
+        assertNotNull(updatedAnswerDTO);
         assertEquals("New text", answer.getTextContent());
     }
 

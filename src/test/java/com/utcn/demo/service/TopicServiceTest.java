@@ -3,6 +3,7 @@ package com.utcn.demo.service;
 import com.utcn.demo.entity.Tag;
 import com.utcn.demo.entity.Topic;
 import com.utcn.demo.entity.User;
+import com.utcn.demo.dto.TopicDTO;
 import com.utcn.demo.repository.TagRepository;
 import com.utcn.demo.repository.TopicRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,9 +56,9 @@ class TopicServiceTest {
         when(tagRepository.findByName("spring")).thenReturn(Optional.of(tag));
         when(topicRepository.save(any(Topic.class))).thenReturn(topic);
 
-        Topic savedTopic = topicService.createTopic(topic);
+        TopicDTO savedTopicDTO = topicService.createTopic(topic);
 
-        assertNotNull(savedTopic);
+        assertNotNull(savedTopicDTO);
         assertEquals("RECEIVED", topic.getStatus());
         verify(tagRepository, never()).save(any());
         verify(topicRepository).save(topic);
@@ -67,7 +68,7 @@ class TopicServiceTest {
     void getAllTopicsSorted_ShouldReturnList() {
         when(topicRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(topic));
 
-        List<Topic> topics = topicService.getAllTopicsSorted();
+        List<TopicDTO> topics = topicService.getAllTopicsSorted();
 
         assertFalse(topics.isEmpty());
     }
@@ -76,7 +77,7 @@ class TopicServiceTest {
     void getTopicsByTag_ShouldReturnList() {
         when(topicRepository.findByTags_Name("spring")).thenReturn(List.of(topic));
 
-        List<Topic> topics = topicService.getTopicsByTag("spring");
+        List<TopicDTO> topics = topicService.getTopicsByTag("spring");
 
         assertFalse(topics.isEmpty());
     }
@@ -85,7 +86,7 @@ class TopicServiceTest {
     void searchByTitle_ShouldReturnList() {
         when(topicRepository.findByTitleContainingIgnoreCase("test")).thenReturn(List.of(topic));
 
-        List<Topic> topics = topicService.searchByTitle("test");
+        List<TopicDTO> topics = topicService.searchByTitle("test");
 
         assertFalse(topics.isEmpty());
     }
@@ -94,12 +95,12 @@ class TopicServiceTest {
     void getTopicsByAuthor_ShouldReturnList() {
         when(topicRepository.findByAuthor(author)).thenReturn(List.of(topic));
 
-        List<Topic> topics = topicService.getTopicsByAuthor(author);
+        List<TopicDTO> topics = topicService.getTopicsByAuthor(author);
 
         assertNotNull(topics);
         assertFalse(topics.isEmpty());
         assertEquals(1, topics.size());
-        assertEquals(topic, topics.get(0));
+        assertEquals(topic.getId(), topics.get(0).id());
 
         verify(topicRepository, times(1)).findByAuthor(author);
     }
@@ -125,20 +126,17 @@ class TopicServiceTest {
 
     @Test
     void updateTopic_ShouldUpdateFields_WhenUserIsAuthor() {
-        // Arrange
         String newTitle = "Titlu Actualizat";
         String newContent = "Continut nou pentru test";
 
         when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
         when(topicRepository.save(any(Topic.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Act
-        Topic updatedTopic = topicService.updateTopic(1L, newTitle, newContent, 1L);
+        TopicDTO updatedTopicDTO = topicService.updateTopic(1L, newTitle, newContent, 1L);
 
-        // Assert
-        assertNotNull(updatedTopic);
-        assertEquals(newTitle, updatedTopic.getTitle());
-        assertEquals(newContent, updatedTopic.getTextContent());
+        assertNotNull(updatedTopicDTO);
+        assertEquals(newTitle, updatedTopicDTO.title());
+        assertEquals(newContent, updatedTopicDTO.textContent());
         verify(topicRepository).save(topic);
     }
 

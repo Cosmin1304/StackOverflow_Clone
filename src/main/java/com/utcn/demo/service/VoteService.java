@@ -28,7 +28,7 @@ public class VoteService {
         TopicVote vote = new TopicVote();
         vote.setUser(voter);
         vote.setTopic(topic);
-        vote.setVoteType(voteType); // UPVOTE sau DOWNVOTE
+        vote.setVoteType(voteType);
 
         User author = topic.getAuthor();
         if ("UPVOTE".equals(voteType)) {
