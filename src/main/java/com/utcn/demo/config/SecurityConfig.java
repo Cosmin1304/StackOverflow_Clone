@@ -1,49 +1,35 @@
 package com.utcn.demo.config;
 
-import com.utcn.demo.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
+// SecurityConfig TEMPORAR — permite toate request-urile fără autentificare.
+// Când vei face microserviciul de autentificare, vei înlocui această configurație
+// cu una care validează token-uri JWT (sau alt mecanism) de la serviciul de auth.
 @Configuration
 public class SecurityConfig {
 
+    // Permite TOATE request-urile fără autentificare.
+    // CSRF dezactivat — necesar pentru REST API-uri (altfel POST/PUT/DELETE sunt blocate).
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**", "/api/users/register").permitAll()
-                                                                                              // open
-                        .anyRequest().authenticated()
-                )
-                .formLogin(withDefaults())
-                .httpBasic(withDefaults());
-
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            );
         return http.build();
     }
 
+    // PasswordEncoder — folosit pentru hash-uirea parolelor la register/update.
+    // BCrypt rămâne necesar chiar și fără autentificare activă,
+    // deoarece UserService îl folosește la salvarea user-ilor.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository) {
-        return username -> userRepository.findByUsername(username)
-                .map(user -> User.builder()
-                        .username(user.getUsername())
-                        .password(user.getPasswordHash())
-                        .roles("USER")
-                        .build())
-                .orElseThrow(() -> new UsernameNotFoundException("User nu a fost găsit: " + username));
     }
 }

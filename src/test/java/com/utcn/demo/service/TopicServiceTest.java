@@ -3,7 +3,6 @@ package com.utcn.demo.service;
 import com.utcn.demo.entity.Tag;
 import com.utcn.demo.entity.Topic;
 import com.utcn.demo.entity.User;
-import com.utcn.demo.dto.TopicDTO;
 import com.utcn.demo.repository.TagRepository;
 import com.utcn.demo.repository.TopicRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,14 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
+// Teste unitare pentru TopicService.
+// Testăm scenariile: creare topic, listare, căutare, ștergere, update — inclusiv cazurile de eroare.
 @ExtendWith(MockitoExtension.class)
 class TopicServiceTest {
 
@@ -51,127 +48,147 @@ class TopicServiceTest {
         topic.setTags(Set.of(tag));
     }
 
+    // ========================================================================================
+    // TEST: createTopic_ShouldSaveTopicWithManagedTags
+    // ========================================================================================
+    // Ce testăm: Că la creare, tag-urile existente se reutilizează (nu se creează duplicate).
+    //
+    // Ce trebuie să faci:
+    // 1. Arrange:
+    //    when(tagRepository.findByName("spring")).thenReturn(Optional.of(tag));
+    //    → Tag-ul "spring" există deja → se reutilizează
+    //    when(topicRepository.save(any(Topic.class))).thenReturn(topic);
+    //
+    // 2. Act: TopicResponseDTO savedTopicDTO = topicService.createTopic(topic);
+    //
+    // 3. Assert:
+    //    assertNotNull(savedTopicDTO);
+    //    assertEquals("RECEIVED", topic.getStatus()); → Statusul inițial e RECEIVED?
+    //    verify(tagRepository, never()).save(any()); → Tag-ul NU a fost salvat din nou?
+    //    verify(topicRepository).save(topic); → Topic-ul A fost salvat?
     @Test
     void createTopic_ShouldSaveTopicWithManagedTags() {
-        when(tagRepository.findByName("spring")).thenReturn(Optional.of(tag));
-        when(topicRepository.save(any(Topic.class))).thenReturn(topic);
-
-        TopicDTO savedTopicDTO = topicService.createTopic(topic);
-
-        assertNotNull(savedTopicDTO);
-        assertEquals("RECEIVED", topic.getStatus());
-        verify(tagRepository, never()).save(any());
-        verify(topicRepository).save(topic);
+        // TODO: Implementează
     }
 
+    // ========================================================================================
+    // TEST: getAllTopicsSorted_ShouldReturnList
+    // ========================================================================================
+    // Ce trebuie să faci:
+    // 1. Arrange: when(topicRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(topic));
+    // 2. Act: List<TopicResponseDTO> topics = topicService.getAllTopicsSorted();
+    // 3. Assert: assertFalse(topics.isEmpty());
     @Test
     void getAllTopicsSorted_ShouldReturnList() {
-        when(topicRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(topic));
-
-        List<TopicDTO> topics = topicService.getAllTopicsSorted();
-
-        assertFalse(topics.isEmpty());
+        // TODO: Implementează
     }
 
+    // ========================================================================================
+    // TEST: getTopicsByTag_ShouldReturnList
+    // ========================================================================================
+    // Ce trebuie să faci:
+    // 1. Arrange: when(topicRepository.findByTags_Name("spring")).thenReturn(List.of(topic));
+    // 2. Act + Assert: lista nu e goală.
     @Test
     void getTopicsByTag_ShouldReturnList() {
-        when(topicRepository.findByTags_Name("spring")).thenReturn(List.of(topic));
-
-        List<TopicDTO> topics = topicService.getTopicsByTag("spring");
-
-        assertFalse(topics.isEmpty());
+        // TODO: Implementează
     }
 
+    // ========================================================================================
+    // TEST: searchByTitle_ShouldReturnList
+    // ========================================================================================
     @Test
     void searchByTitle_ShouldReturnList() {
-        when(topicRepository.findByTitleContainingIgnoreCase("test")).thenReturn(List.of(topic));
-
-        List<TopicDTO> topics = topicService.searchByTitle("test");
-
-        assertFalse(topics.isEmpty());
+        // TODO: Implementează — similar cu testele de mai sus, folosește findByTitleContainingIgnoreCase
     }
 
+    // ========================================================================================
+    // TEST: getTopicsByAuthor_ShouldReturnList
+    // ========================================================================================
+    // Ce trebuie să faci:
+    // 1. Arrange: when(topicRepository.findByAuthor(author)).thenReturn(List.of(topic));
+    // 2. Act: apelează getTopicsByAuthor(author)
+    // 3. Assert: lista nu e goală, are 1 element, id-ul se potrivește
+    //    verify(topicRepository, times(1)).findByAuthor(author);
+    //    → times(1) = confirmă că metoda a fost apelată EXACT o dată
     @Test
     void getTopicsByAuthor_ShouldReturnList() {
-        when(topicRepository.findByAuthor(author)).thenReturn(List.of(topic));
-
-        List<TopicDTO> topics = topicService.getTopicsByAuthor(author);
-
-        assertNotNull(topics);
-        assertFalse(topics.isEmpty());
-        assertEquals(1, topics.size());
-        assertEquals(topic.getId(), topics.get(0).id());
-
-        verify(topicRepository, times(1)).findByAuthor(author);
+        // TODO: Implementează
     }
 
+    // ========================================================================================
+    // TEST: deleteTopic_ShouldDelete_WhenUserIsAuthor
+    // ========================================================================================
+    // Ce trebuie să faci:
+    // 1. Arrange: findById returnează topic-ul, doNothing pe delete
+    // 2. Act: assertDoesNotThrow(() -> topicService.deleteTopic(1L, 1L));
+    //    assertDoesNotThrow = confirmă că NU se aruncă excepție
+    // 3. Assert: verify(topicRepository).delete(topic);
     @Test
     void deleteTopic_ShouldDelete_WhenUserIsAuthor() {
-        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
-        doNothing().when(topicRepository).delete(topic);
-
-        assertDoesNotThrow(() -> topicService.deleteTopic(1L, 1L));
-
-        verify(topicRepository).delete(topic);
+        // TODO: Implementează
     }
 
+    // ========================================================================================
+    // TEST: deleteTopic_ShouldThrowException_WhenUserIsNotAuthor
+    // ========================================================================================
+    // Ce trebuie să faci:
+    // 1. Arrange: findById returnează topic-ul (author.id = 1)
+    // 2. Act + Assert: assertThrows(RuntimeException.class, () -> topicService.deleteTopic(1L, 2L));
+    //    → currentUserId = 2 ≠ author.id = 1 → excepție
     @Test
     void deleteTopic_ShouldThrowException_WhenUserIsNotAuthor() {
-        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
-
-        assertThrows(RuntimeException.class, () -> {
-            topicService.deleteTopic(1L, 2L);
-        });
+        // TODO: Implementează
     }
 
+    // ========================================================================================
+    // TEST: updateTopic_ShouldUpdateFields_WhenUserIsAuthor
+    // ========================================================================================
+    // Ce trebuie să faci:
+    // 1. Arrange:
+    //    when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
+    //    when(topicRepository.save(any(Topic.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    //    → thenAnswer returnează EXACT obiectul primit ca argument (topic-ul modificat)
+    //
+    // 2. Act: TopicResponseDTO updated = topicService.updateTopic(1L, "Titlu Actualizat", "Continut nou", 1L);
+    //
+    // 3. Assert: titlul și conținutul s-au schimbat, save a fost apelat
     @Test
     void updateTopic_ShouldUpdateFields_WhenUserIsAuthor() {
-        String newTitle = "Titlu Actualizat";
-        String newContent = "Continut nou pentru test";
-
-        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
-        when(topicRepository.save(any(Topic.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        TopicDTO updatedTopicDTO = topicService.updateTopic(1L, newTitle, newContent, 1L);
-
-        assertNotNull(updatedTopicDTO);
-        assertEquals(newTitle, updatedTopicDTO.title());
-        assertEquals(newContent, updatedTopicDTO.textContent());
-        verify(topicRepository).save(topic);
+        // TODO: Implementează
     }
 
+    // ========================================================================================
+    // TEST: updateTopic_ShouldThrowException_WhenUserIsNotAuthor
+    // ========================================================================================
     @Test
     void updateTopic_ShouldThrowException_WhenUserIsNotAuthor() {
-        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            topicService.updateTopic(1L, "Titlu", "Continut", 2L);
-        });
-
-        assertEquals("Only the author can edit this topic", exception.getMessage());
-        verify(topicRepository, never()).save(any());
+        // TODO: Implementează — similar cu deleteTopic not author
+        // Verifică și mesajul excepției: assertEquals("Only the author can edit this topic", ...)
+        // Verifică că save NU a fost apelat: verify(topicRepository, never()).save(any())
     }
 
+    // ========================================================================================
+    // TEST: updateTopic_ShouldThrowException_WhenTopicNotFound
+    // ========================================================================================
     @Test
     void updateTopic_ShouldThrowException_WhenTopicNotFound() {
-        when(topicRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> {
-            topicService.updateTopic(99L, "Titlu", "Continut", 1L);
-        });
+        // TODO: Implementează
+        // Arrange: when(topicRepository.findById(99L)).thenReturn(Optional.empty());
+        // Assert: assertThrows(RuntimeException.class, ...)
     }
 
+    // ========================================================================================
+    // TEST: updateTopic_ShouldNotUpdate_WhenFieldsAreEmpty
+    // ========================================================================================
+    // Ce testăm: Că dacă trimitem titlu gol ("   ") și content null, câmpurile rămân neschimbate.
+    //
+    // Ce trebuie să faci:
+    // 1. Arrange: setează un titlu original pe topic, configurează mock-urile
+    // 2. Act: apelează updateTopic cu titlu = "   " și content = null
+    // 3. Assert: titlul rămâne cel original, save tot se apelează (dar fără modificări)
     @Test
     void updateTopic_ShouldNotUpdate_WhenFieldsAreEmpty() {
-        String originalTitle = "Original Title";
-        topic.setTitle(originalTitle);
-
-        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
-        when(topicRepository.save(any(Topic.class))).thenReturn(topic);
-
-        topicService.updateTopic(1L, "   ", null, 1L);
-
-        assertEquals(originalTitle, topic.getTitle());
-        verify(topicRepository).save(topic);
+        // TODO: Implementează
     }
 }

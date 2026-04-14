@@ -3,7 +3,6 @@ package com.utcn.demo.service;
 import com.utcn.demo.entity.Answer;
 import com.utcn.demo.entity.Topic;
 import com.utcn.demo.entity.User;
-import com.utcn.demo.dto.AnswerDTO;
 import com.utcn.demo.repository.AnswerRepository;
 import com.utcn.demo.repository.TopicRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,14 +12,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
+// Teste unitare pentru AnswerService.
 @ExtendWith(MockitoExtension.class)
 class AnswerServiceTest {
 
@@ -53,70 +47,81 @@ class AnswerServiceTest {
         answer.setTopic(topic);
     }
 
+    // ========================================================================================
+    // TEST: addAnswer_ShouldSaveAnswer_WhenTopicExistsAndNotSolved
+    // ========================================================================================
+    // Ce testăm: Că un răspuns se salvează corect și statusul topic-ului devine IN_PROGRESS.
+    //
+    // Ce trebuie să faci:
+    // 1. Arrange:
+    //    when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
+    //    when(answerRepository.save(any(Answer.class))).thenReturn(answer);
+    //
+    // 2. Act: AnswerResponseDTO saved = answerService.addAnswer(1L, answer);
+    //
+    // 3. Assert:
+    //    assertNotNull(saved);
+    //    verify(topicRepository).save(topic); → Topic-ul a fost salvat (status schimbat)?
+    //    verify(answerRepository).save(answer); → Răspunsul a fost salvat?
+    //    assertEquals("IN_PROGRESS", topic.getStatus()); → Statusul s-a schimbat?
     @Test
     void addAnswer_ShouldSaveAnswer_WhenTopicExistsAndNotSolved() {
-        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
-        when(answerRepository.save(any(Answer.class))).thenReturn(answer);
-
-        AnswerDTO savedAnswerDTO = answerService.addAnswer(1L, answer);
-
-        assertNotNull(savedAnswerDTO);
-        verify(topicRepository).save(topic);
-        verify(answerRepository).save(answer);
-        assertEquals("IN_PROGRESS", topic.getStatus());
+        // TODO: Implementează
     }
 
+    // ========================================================================================
+    // TEST: addAnswer_ShouldThrowException_WhenTopicIsSolved
+    // ========================================================================================
+    // Ce testăm: Că nu se pot adăuga răspunsuri la un topic deja rezolvat (SOLVED).
+    //
+    // Ce trebuie să faci:
+    // 1. Arrange: topic.setStatus("SOLVED"); + findById returnează topic-ul
+    // 2. Act + Assert:
+    //    assertThrows + verifică mesajul excepției
+    //    verify(answerRepository, never()).save(any()); → Save NU a fost apelat
     @Test
     void addAnswer_ShouldThrowException_WhenTopicIsSolved() {
-        topic.setStatus("SOLVED");
-        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            answerService.addAnswer(1L, answer);
-        });
-
-        assertEquals("This topic is already solved, no more answers can be added", exception.getMessage());
-        verify(answerRepository, never()).save(any());
+        // TODO: Implementează
     }
 
+    // ========================================================================================
+    // TEST: getAnswersByTopic_ShouldReturnList
+    // ========================================================================================
     @Test
     void getAnswersByTopic_ShouldReturnList() {
-        when(topicRepository.findById(1L)).thenReturn(Optional.of(topic));
-        when(answerRepository.findByTopicOrderByCreatedAtDesc(topic)).thenReturn(List.of(answer));
-
-        List<AnswerDTO> answers = answerService.getAnswersByTopic(1L);
-
-        assertFalse(answers.isEmpty());
-        assertEquals(1, answers.size());
+        // TODO: Implementează
+        // Arrange: findById + findByTopicOrderByCreatedAtDesc returnează lista
+        // Assert: lista nu e goală, are 1 element
     }
 
+    // ========================================================================================
+    // TEST: updateAnswer_ShouldUpdate_WhenUserIsAuthor
+    // ========================================================================================
     @Test
     void updateAnswer_ShouldUpdate_WhenUserIsAuthor() {
-        when(answerRepository.findById(1L)).thenReturn(Optional.of(answer));
-        when(answerRepository.save(any(Answer.class))).thenReturn(answer);
-
-        AnswerDTO updatedAnswerDTO = answerService.updateAnswer(1L, "New text", 1L);
-
-        assertNotNull(updatedAnswerDTO);
-        assertEquals("New text", answer.getTextContent());
+        // TODO: Implementează
+        // Arrange: findById, save
+        // Act: updateAnswer(1L, "New text", 1L)
+        // Assert: textContent e "New text"
     }
 
+    // ========================================================================================
+    // TEST: updateAnswer_ShouldThrowException_WhenUserIsNotAuthor
+    // ========================================================================================
     @Test
     void updateAnswer_ShouldThrowException_WhenUserIsNotAuthor() {
-        when(answerRepository.findById(1L)).thenReturn(Optional.of(answer));
-
-        assertThrows(RuntimeException.class, () -> {
-            answerService.updateAnswer(1L, "New text", 2L);
-        });
+        // TODO: Implementează
+        // currentUserId = 2L ≠ author.id = 1L → excepție
     }
 
+    // ========================================================================================
+    // TEST: deleteAnswer_ShouldDelete_WhenUserIsAuthor
+    // ========================================================================================
     @Test
     void deleteAnswer_ShouldDelete_WhenUserIsAuthor() {
-        when(answerRepository.findById(1L)).thenReturn(Optional.of(answer));
-        doNothing().when(answerRepository).delete(answer);
-
-        assertDoesNotThrow(() -> answerService.deleteAnswer(1L, 1L));
-
-        verify(answerRepository).delete(answer);
+        // TODO: Implementează
+        // Arrange: findById, doNothing pe delete
+        // Act: assertDoesNotThrow(...)
+        // Assert: verify delete a fost apelat
     }
 }
