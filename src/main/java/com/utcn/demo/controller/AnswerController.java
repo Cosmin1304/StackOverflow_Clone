@@ -14,74 +14,47 @@ import java.util.List;
 // Endpoint-urile sunt sub /api/answers.
 @RestController
 @RequestMapping("/api/answers")
+@lombok.RequiredArgsConstructor
 public class AnswerController {
 
-    @Autowired
-    private AnswerService answerService;
+    private final AnswerService answerService;
+    private final UserService userService;
+    private final com.utcn.demo.service.VoteService voteService;
 
-    @Autowired
-    private UserService userService;
-
-    // ========================================================================================
-    // ENDPOINT: GET /api/answers/topic/{topicId}
-    // ========================================================================================
-    // Scop: Returnează toate răspunsurile pentru un topic specificat prin ID.
-    //
-    // Ce trebuie să faci:
-    // 1. Apelează answerService.getAnswersByTopic(topicId) și returnează lista.
     @GetMapping("/topic/{topicId}")
     public List<AnswerResponseDTO> getAnswersForTopic(@PathVariable Long topicId) {
-        // TODO: Implementează
-        throw new UnsupportedOperationException("De implementat");
+        return answerService.getAnswersByTopic(topicId);
     }
 
-    // ========================================================================================
-    // ENDPOINT: POST /api/answers/topic/{topicId}
-    // ========================================================================================
-    // Scop: Adaugă un răspuns nou la un topic.
-    //
-    // Ce trebuie să faci:
-    // 1. Extrage autorul din sesiune:
-    //    User author = userService.findUserEntityByUsername(principal.getName())
-    //       .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
-    //    DE CE: Răspunsul trebuie să aibă un autor. Autorul e user-ul logat,
-    //    nu un ID trimis de client (ar fi nesigur — clientul ar putea trimite orice ID).
-    //
-    // 2. Setează autorul pe answer: answer.setAuthor(author)
-    //
-    // 3. Apelează answerService.addAnswer(topicId, answer) și returnează rezultatul.
     @PostMapping("/topic/{topicId}")
-    public AnswerResponseDTO addAnswer(@PathVariable Long topicId, @RequestBody Answer answer, Principal principal) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+    public AnswerResponseDTO addAnswer(@PathVariable Long topicId, @RequestBody com.utcn.demo.dto.Requests.AnswerRequestDTO answer, Principal principal) {
+        return userService.findByUsername(principal.getName())
+                .map(user -> answerService.addAnswer(topicId, answer, user.id()))
+                .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
     }
 
-    // ========================================================================================
-    // ENDPOINT: PUT /api/answers/{id}?newText=...
-    // ========================================================================================
-    // Scop: Actualizează textul unui răspuns (doar autorul poate face asta).
-    //
-    // Ce trebuie să faci:
-    // 1. Extrage ID-ul autorului curent din Principal (findByUsername → .id())
-    // 2. Apelează answerService.updateAnswer(id, newText, authorId)
-    // 3. Returnează rezultatul.
     @PutMapping("/{id}")
     public AnswerResponseDTO updateAnswer(@PathVariable Long id, @RequestParam String newText, Principal principal) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+        return userService.findByUsername(principal.getName())
+                .map(user -> answerService.updateAnswer(id, newText, user.id()))
+                .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
     }
 
-    // ========================================================================================
-    // ENDPOINT: DELETE /api/answers/{id}
-    // ========================================================================================
-    // Scop: Șterge un răspuns (doar autorul poate face asta).
-    //
-    // Ce trebuie să faci:
-    // 1. Extrage ID-ul autorului curent
-    // 2. Apelează answerService.deleteAnswer(id, authorId)
+    @PostMapping("/{id}/vote")
+    public void voteAnswer(@PathVariable Long id, @RequestParam String voteType, Principal principal) {
+        userService.findByUsername(principal.getName())
+                .ifPresentOrElse(
+                        user -> voteService.voteAnswer(id, user.id(), voteType),
+                        () -> { throw new RuntimeException("Sesiune invalida"); }
+                );
+    }
+
     @DeleteMapping("/{id}")
     public void deleteAnswer(@PathVariable Long id, Principal principal) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+        userService.findByUsername(principal.getName())
+                .ifPresentOrElse(
+                        user -> answerService.deleteAnswer(id, user.id()),
+                        () -> { throw new RuntimeException("Sesiune invalida"); }
+                );
     }
 }

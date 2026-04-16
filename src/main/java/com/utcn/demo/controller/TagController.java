@@ -12,37 +12,18 @@ import java.util.List;
 // Endpoint-urile sunt sub /api/tags.
 @RestController
 @RequestMapping("/api/tags")
+@lombok.RequiredArgsConstructor
 public class TagController {
 
-    @Autowired
-    private TagService tagService;
+    private final TagService tagService;
 
-    // ========================================================================================
-    // ENDPOINT: GET /api/tags
-    // ========================================================================================
-    // Scop: Returnează toate tag-urile existente.
-    //
-    // Ce trebuie să faci:
-    // 1. Apelează tagService.getAllTags() și returnează lista.
     @GetMapping
     public List<TagResponseDTO> getAllTags() {
-        // TODO: Implementează
-        throw new UnsupportedOperationException("De implementat");
+        return tagService.getAllTags();
     }
 
-    // ========================================================================================
-    // ENDPOINT: POST /api/tags/{tagName}
-    // ========================================================================================
-    // Scop: Creează un tag nou SAU returnează tag-ul existent dacă deja există cu acel nume.
-    //
-    // @PathVariable String tagName — numele tag-ului vine din URL:
-    //   Ex: POST /api/tags/spring → tagName = "spring"
-    //
-    // Ce trebuie să faci:
-    // 1. Apelează tagService.findOrCreateTag(tagName) și returnează rezultatul.
     @PostMapping("/{tagName}")
     public TagResponseDTO addTag(@PathVariable String tagName) {
-        // TODO: Implementează
-        throw new UnsupportedOperationException("De implementat");
+        return tagService.findOrCreateTag(tagName);
     }
 }

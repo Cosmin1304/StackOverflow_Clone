@@ -1,69 +1,113 @@
 package com.utcn.demo.service;
 
-import com.utcn.demo.entity.Topic;
-import com.utcn.demo.entity.TopicVote;
-import com.utcn.demo.entity.User;
+import com.utcn.demo.dto.Mappers.UserMapper;
+import com.utcn.demo.dto.Requests.TopicRequestDTO;
+import com.utcn.demo.dto.Requests.UserRequestDTO;
+import com.utcn.demo.dto.Responses.UserResponseDTO;
+import com.utcn.demo.entity.*;
 import com.utcn.demo.repository.TopicRepository;
 import com.utcn.demo.repository.TopicVoteRepository;
 import com.utcn.demo.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 // VoteService — conține logica de business pentru voturile pe topic-uri.
 // Sistemul de vot permite utilizatorilor să dea UPVOTE sau DOWNVOTE pe topic-uri.
 // Voturile afectează scorul (reputația) autorului topic-ului.
 @Service
+@RequiredArgsConstructor
 public class VoteService {
+    private final TopicVoteRepository topicVoteRepository;
+    private final TopicRepository topicRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private TopicVoteRepository topicVoteRepository;
+    // repository-uri adaugate pt raspunsuri
+    private final com.utcn.demo.repository.AnswerRepository answerRepository;
+    private final com.utcn.demo.repository.AnswerVoteRepository answerVoteRepository;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    // ========================================================================================
-    // METODA: voteTopic
-    // ========================================================================================
-    // Scop: Permite unui utilizator să voteze (UPVOTE/DOWNVOTE) un topic.
-    //       Votul afectează scorul autorului topic-ului.
-    //
-    // Parametri:
-    //   - topic: entitatea Topic pe care se votează
-    //   - voter: entitatea User care votează
-    //   - voteType: String, fie "UPVOTE" fie "DOWNVOTE"
-    //
-    // Ce trebuie să faci:
-    // 1. VALIDARE — Verifică dacă voter-ul este chiar autorul topic-ului:
-    //    Dacă voter.getId().equals(topic.getAuthor().getId()) → aruncă RuntimeException
-    //    "You cannot vote on your own topic"
-    //    DE CE: Nu poți să-ți dai singur upvote — ar fi abuz.
-    //
-    // 2. Creează un obiect TopicVote nou:
-    //    TopicVote vote = new TopicVote();
-    //    vote.setUser(voter);    — cine a votat
-    //    vote.setTopic(topic);   — pe ce topic
-    //    vote.setVoteType(voteType); — ce tip de vot
-    //    TopicVote folosește o cheie compusă (TopicVoteKey) cu topic_id + user_id.
-    //    @MapsId setează automat valorile din cheie pe baza entităților setate.
-    //
-    // 3. Actualizează scorul autorului:
-    //    User author = topic.getAuthor();
-    //    - Dacă voteType == "UPVOTE" → adaugă 2.5 la scor:
-    //      author.setScore(author.getScore().add(new BigDecimal("2.5")))
-    //    - Dacă voteType == "DOWNVOTE" → scade 1.5 din scor:
-    //      author.setScore(author.getScore().subtract(new BigDecimal("1.5")))
-    //    DE CE BigDecimal și nu double? — BigDecimal e precis pentru calcule financiare/de scor.
-    //    double poate avea erori de precizie (ex: 0.1 + 0.2 != 0.3).
-    //
-    // 4. Salvează votul: topicVoteRepository.save(vote)
-    // 5. Salvează autorul actualizat: userRepository.save(author)
-    //    DE CE salvăm și autorul? — I-am modificat scorul, trebuie persistat în DB.
     @Transactional
-    public void voteTopic(Topic topic, User voter, String voteType){
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+    public void voteTopic(Integer topicId, Long userId, String voteTypeString) {
+        Topic topic = topicRepository.findById(Long.valueOf(topicId))
+                .orElseThrow(() -> new RuntimeException("Topic doesn't exist"));
+
+        processVote(userId, topic.getAuthor(),
+                u -> topic.getVotes().stream().anyMatch(v -> v.getUser().getId().equals(u.getId())),
+                voteTypeString, this::applyTopicScoreRules,
+                u -> {
+                    TopicVote tv = new TopicVote();
+                    tv.setTopic(topic);
+                    tv.setUser(u);
+                    tv.setVoteType(voteTypeString.toUpperCase());
+                    topicVoteRepository.save(tv);
+                });
+    }
+
+    @Transactional
+    public void voteAnswer(Long answerId, Long userId, String voteTypeString) {
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new RuntimeException("Answer doesn't exist"));
+
+        processVote(userId, answer.getAuthor(),
+                u -> answer.getVotes().stream().anyMatch(v -> v.getUser().getId().equals(u.getId())),
+                voteTypeString, this::applyAnswerScoreRules,
+                user -> strategyConsumerImplementation(user,answer,voteTypeString)
+                );
+    }
+    private void strategyConsumerImplementation (User user, Answer answer , String voteTypeString) {
+        AnswerVote av = new AnswerVote();
+        av.setAnswer(answer);
+        av.setUser(user);
+        av.setVoteType(voteTypeString.toUpperCase());
+        answerVoteRepository.save(av);
+    }
+
+    private void processVote(Long userId, User author, Predicate<User> alreadyVotedCheck,
+                             String voteType, ScoreStrategy strategy, Consumer<User> voteSaver) {
+        User voter = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User doesn't exist"));
+
+        if (author == null) throw new RuntimeException("Target has no author");
+        if (author.getId().equals(voter.getId())) throw new RuntimeException("You cannot vote your own content!");
+        if (alreadyVotedCheck.test(voter)) throw new RuntimeException("User already voted on this content!");
+
+        strategy.apply(voter, author, voteType.toUpperCase());
+
+        voteSaver.accept(voter);
+        userRepository.save(author);
+        userRepository.save(voter); // salveaza mereu si voter-ul (util in caz de penalizari pe answer downvote)
+    }
+
+    @FunctionalInterface
+    private interface ScoreStrategy {
+        void apply(User voter, User author, String voteType);
+    }
+
+    private void applyTopicScoreRules(User voter, User author, String voteType) {
+        if ("UPVOTE".equals(voteType)) {
+            author.setScore(author.getScore().add(new BigDecimal("2.5")));
+        } else if ("DOWNVOTE".equals(voteType)) {
+            author.setScore(author.getScore().subtract(new BigDecimal("1.5")));
+        } else {
+            throw new RuntimeException("Invalid vote type for topic");
+        }
+    }
+
+    private void applyAnswerScoreRules(User voter, User author, String voteType) {
+        if ("UPVOTE".equals(voteType)) {
+            author.setScore(author.getScore().add(new BigDecimal("5.0")));
+        } else if ("DOWNVOTE".equals(voteType)) {
+            author.setScore(author.getScore().subtract(new BigDecimal("2.5")));
+            voter.setScore(voter.getScore().subtract(new BigDecimal("1.5")));
+        } else {
+            throw new RuntimeException("Invalid vote type for answer");
+        }
     }
 }

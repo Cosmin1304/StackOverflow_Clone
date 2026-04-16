@@ -1,8 +1,13 @@
 package com.utcn.demo.service;
 
+import com.utcn.demo.dto.Mappers.AnswerMapper;
+import com.utcn.demo.dto.Requests.AnswerRequestDTO;
 import com.utcn.demo.entity.Answer;
+import com.utcn.demo.entity.Topic;
 import com.utcn.demo.repository.AnswerRepository;
 import com.utcn.demo.repository.TopicRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,108 +15,99 @@ import org.springframework.transaction.annotation.Transactional;
 import com.utcn.demo.dto.Responses.AnswerResponseDTO;
 
 import java.util.List;
+import java.util.Objects;
 
 // AnswerService — conține logica de business pentru răspunsuri (Answer).
 // Un Answer este un răspuns la un Topic (întrebare pe forum).
 @Service
+@RequiredArgsConstructor
 public class AnswerService {
 
-    @Autowired
-    private AnswerRepository answerRepository;
+    private final AnswerRepository answerRepository;
+    private final AnswerMapper answerMapper;
+    private final TopicRepository topicRepository;
+    private final com.utcn.demo.repository.UserRepository userRepository;
 
-    @Autowired
-    private TopicRepository topicRepository;
-
-    // ========================================================================================
-    // METODA: addAnswer
-    // ========================================================================================
-    // Scop: Adaugă un răspuns la un topic existent.
-    //
-    // Parametri:
-    //   - topicId: ID-ul topic-ului la care se adaugă răspunsul
-    //   - answer: entitatea Answer cu datele răspunsului (textContent, author setat deja de controller)
-    //
-    // Ce trebuie să faci:
-    // 1. Caută topic-ul în DB: topicRepository.findById(topicId)
-    //    Dacă nu există → RuntimeException("Topic not found")
-    //
-    // 2. Verifică dacă topic-ul NU e deja rezolvat:
-    //    Dacă topic.getStatus() == "SOLVED" → aruncă RuntimeException
-    //    "This topic is already solved, no more answers can be added"
-    //    DE CE: Dacă o întrebare e marcată ca rezolvată, nu mai permitem răspunsuri noi.
-    //
-    // 3. Setează data creării: answer.setCreatedAt(LocalDateTime.now())
-    //
-    // 4. Leagă răspunsul de topic: answer.setTopic(topic)
-    //    DE CE: Answer are o relație @ManyToOne cu Topic. Trebuie setată explicit.
-    //
-    // 5. Verifică dacă acesta e PRIMUL răspuns:
-    //    Dacă topic.getAnswers().isEmpty() ȘI statusul e "RECEIVED"
-    //    → Schimbă statusul topic-ului în "IN_PROGRESS"
-    //    → Salvează topic-ul: topicRepository.save(topic)
-    //    DE CE: Primul răspuns înseamnă că cineva a început să lucreze la întrebare.
-    //
-    // 6. Salvează răspunsul: answerRepository.save(answer)
-    // 7. Returnează AnswerResponseDTO.fromEntity(...)
     @Transactional
-    public AnswerResponseDTO addAnswer(Long topicId, Answer answer) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+    public AnswerResponseDTO addAnswer(Long topicId, AnswerRequestDTO answerDTO, Long currentUserId) {
+        return topicRepository.findById(topicId)
+                .map(this::validateTopicIsUnsolved)
+                .map(this::updateTopicStatusIfNeeded)
+                .map(topic -> createAnswerEntity(answerDTO, topic, currentUserId))
+                .map(answerRepository::save)
+                .map(answerMapper::toResponse)
+                .orElseThrow(() -> new RuntimeException("Topic not found"));
     }
 
-    // ========================================================================================
-    // METODA: getAnswersByTopic
-    // ========================================================================================
-    // Scop: Returnează toate răspunsurile pentru un topic, sortate descrescător după data creării.
-    //
-    // Ce trebuie să faci:
-    // 1. Caută topic-ul: topicRepository.findById(topicId)
-    //    Dacă nu există → RuntimeException("Topic not found")
-    // 2. Apelează answerRepository.findByTopicOrderByCreatedAtDesc(topic)
-    // 3. Convertește în DTO-uri cu stream/map/collect.
+    private Topic validateTopicIsUnsolved(Topic topic) {
+        if ("SOLVED".equals(topic.getStatus())) {
+            throw new RuntimeException("This topic is already solved, no more answers can be added");
+        }
+        return topic;
+    }
+
+    private Topic updateTopicStatusIfNeeded(Topic topic) {
+        if (topic.getAnswers().isEmpty() && "RECEIVED".equals(topic.getStatus())) {
+            topic.setStatus("IN_PROGRESS");
+            topicRepository.save(topic);
+        }
+        return topic;
+    }
+
+    private Answer createAnswerEntity(AnswerRequestDTO dto, Topic topic, Long currentUserId) {
+        Answer answer = answerMapper.toEntity(dto);
+        answer.setCreatedAt(java.time.LocalDateTime.now()); //this may be optional
+        answer.setTopic(topic);
+
+        userRepository.findById(currentUserId).ifPresent(answer::setAuthor);
+        if (answer.getAuthor() == null) {
+            throw new RuntimeException("Author not found");
+        }
+        return answer;
+    }
+
     @Transactional(readOnly = true)
     public List<AnswerResponseDTO> getAnswersByTopic(Long topicId) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+        return topicRepository.findById(topicId)
+                .map(topic -> new java.util.ArrayList<>(topic.getAnswers()))
+                .orElseThrow(() -> new RuntimeException("Topic not found"))
+                .stream()
+                .map(answerMapper::toResponse)
+                .sorted((a1, a2) -> {
+                    int score1 = a1.votes().stream().mapToInt(v -> "UPVOTE".equals(v.voteType()) ? 1 : -1).sum();
+                    int score2 = a2.votes().stream().mapToInt(v -> "UPVOTE".equals(v.voteType()) ? 1 : -1).sum();
+                    return Integer.compare(score2, score1);
+                })
+                .toList();
     }
 
-    // ========================================================================================
-    // METODA: updateAnswer
-    // ========================================================================================
-    // Scop: Actualizează textul unui răspuns, doar de către autorul său.
-    //
-    // Parametri:
-    //   - answerId: ID-ul răspunsului
-    //   - newText: noul text al răspunsului
-    //   - currentUserId: ID-ul utilizatorului autentificat
-    //
-    // Ce trebuie să faci:
-    // 1. Caută răspunsul: answerRepository.findById(answerId)
-    //    Dacă nu există → RuntimeException("Answer not found")
-    //
-    // 2. Verifică permisiunea: answer.getAuthor().getId() trebuie să fie EGAL cu currentUserId
-    //    Dacă NU → RuntimeException("Only the author can edit this answer!")
-    //
-    // 3. Actualizează textul: answer.setTextContent(newText)
-    // 4. Salvează: answerRepository.save(answer)
-    // 5. Returnează AnswerResponseDTO.fromEntity(...)
     @Transactional
     public AnswerResponseDTO updateAnswer(Long answerId, String newText, Long currentUserId) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+        return answerRepository.findById(answerId)
+                .map(answer -> {
+                    if (!Objects.equals(answer.getAuthor().getId(), currentUserId)) {
+                        throw new RuntimeException("Only the author can edit this answer!");
+                    }
+                    answer.setTextContent(newText);
+                    return answer;
+                })
+                .map(answerRepository::save)
+                .map(answerMapper::toResponse)
+                .orElseThrow(() -> new RuntimeException("Answer not found"));
     }
 
-    // ========================================================================================
-    // METODA: deleteAnswer
-    // ========================================================================================
-    // Scop: Șterge un răspuns, doar de către autorul său.
-    //
-    // Ce trebuie să faci:
-    // 1. Caută răspunsul: answerRepository.findById(answerId)
-    // 2. Verifică permisiunea (la fel ca la update)
-    // 3. Șterge: answerRepository.delete(answer)
+    @Transactional
     public void deleteAnswer(Long answerId, Long currentUserId) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+        answerRepository.findById(answerId).ifPresentOrElse(
+                answer -> {
+                    if (!Objects.equals(answer.getAuthor().getId(), currentUserId)) {
+                        throw new RuntimeException("Only the author can delete this answer!");
+                    }
+                    answerRepository.delete(answer);
+                },
+                () -> {
+                    throw new RuntimeException("Answer not found");
+                }
+        );
     }
 }

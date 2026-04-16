@@ -13,99 +13,72 @@ import java.util.List;
 // Endpoint-urile sunt sub /api/topics.
 @RestController
 @RequestMapping("/api/topics")
+@lombok.RequiredArgsConstructor
 public class TopicController {
 
-    @Autowired
-    private TopicService topicService;
+    private final TopicService topicService;
+    private final UserService userService;
+    private final com.utcn.demo.service.VoteService voteService;
 
-    // Avem nevoie de UserService pentru a extrage entitatea/ID-ul user-ului autentificat
-    // din obiectul Principal (care conține doar username-ul).
-    @Autowired
-    private UserService userService;
-
-    // ========================================================================================
-    // ENDPOINT: GET /api/topics
-    // ========================================================================================
-    // Scop: Returnează toate topic-urile, sortate descrescător după data creării.
-    //
-    // Ce trebuie să faci:
-    // 1. Apelează topicService.getAllTopicsSorted() și returnează lista.
     @GetMapping
     public List<TopicResponseDTO> getAllTopics() {
-        // TODO: Implementează
-        throw new UnsupportedOperationException("De implementat");
+        return topicService.getAllTopicsSorted();
     }
 
-    // ========================================================================================
-    // ENDPOINT: GET /api/topics/search?title=...
-    // ========================================================================================
-    // Scop: Caută topic-uri al căror titlu conține textul specificat.
-    //
-    // @RequestParam — extrage parametrul din query string:
-    //   Ex: GET /api/topics/search?title=spring → title = "spring"
-    //   Diferența față de @PathVariable: PathVariable e în URL (/topics/{id}),
-    //   RequestParam e după ? (/topics/search?title=...)
-    //
-    // Ce trebuie să faci:
-    // 1. Apelează topicService.searchByTitle(title) și returnează.
     @GetMapping("/search")
     public List<TopicResponseDTO> searchTopics(@RequestParam String title) {
-        // TODO: Implementează
-        throw new UnsupportedOperationException("De implementat");
+        return topicService.searchByTitle(title);
     }
 
-    // ========================================================================================
-    // ENDPOINT: POST /api/topics
-    // ========================================================================================
-    // Scop: Creează un topic nou. Autorul se setează automat din sesiunea autentificată.
-    //
-    // Ce trebuie să faci:
-    // 1. Extrage autorul (entitatea User) din sesiune:
-    //    User author = userService.findUserEntityByUsername(principal.getName())
-    //       .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
-    //    DE CE findUserEntityByUsername (nu findByUsername)?
-    //    Aici avem nevoie de entitatea User completă (nu DTO) pentru a o seta pe topic.
-    //    JPA are nevoie de entitatea managed pentru relația @ManyToOne.
-    //
-    // 2. Setează autorul pe topic: topic.setAuthor(author)
-    //
-    // 3. Apelează topicService.createTopic(topic) și returnează rezultatul.
     @PostMapping
-    public TopicResponseDTO createTopic(@RequestBody Topic topic, Principal principal) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+    public TopicResponseDTO createTopic(@RequestBody com.utcn.demo.dto.Requests.TopicRequestDTO topic, Principal principal) {
+        return userService.findUserEntityByUsername(principal.getName())
+                .map(user -> topicService.createTopic(topic))
+                .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
     }
 
-    // ========================================================================================
-    // ENDPOINT: PUT /api/topics/{id}?title=...&content=...
-    // ========================================================================================
-    // Scop: Actualizează titlul și/sau conținutul unui topic (doar autorul poate face asta).
-    //
-    // @RequestParam(required = false) — parametrii sunt opționali.
-    //   Poți trimite doar titlul, doar content-ul, sau amândouă.
-    //
-    // Ce trebuie să faci:
-    // 1. Extrage ID-ul autorului curent din Principal (prin findByUsername → .id())
-    // 2. Apelează topicService.updateTopic(id, title, content, authorId)
-    // 3. Returnează rezultatul.
     @PutMapping("/{id}")
-    public TopicResponseDTO updateTopic(@PathVariable Long id, @RequestParam(required = false) String title,
-                                        @RequestParam(required = false) String content, Principal principal) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+    public TopicResponseDTO updateTopic(@PathVariable Long id, @RequestBody com.utcn.demo.dto.Requests.TopicRequestDTO topic, Principal principal) {
+        return userService.findByUsername(principal.getName())
+                .map(user -> topicService.updateTopic(id, topic, user.id()))
+                .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
     }
 
-    // ========================================================================================
-    // ENDPOINT: DELETE /api/topics/{id}
-    // ========================================================================================
-    // Scop: Șterge un topic (doar autorul poate face asta).
-    //
-    // Ce trebuie să faci:
-    // 1. Extrage ID-ul autorului curent (la fel ca la update)
-    // 2. Apelează topicService.deleteTopic(id, authorId)
+    @GetMapping("/tag/{tagName}")
+    public List<TopicResponseDTO> getTopicsByTag(@PathVariable String tagName) {
+        return topicService.getTopicsByTag(tagName);
+    }
+
+    @GetMapping("/author/{username}")
+    public List<TopicResponseDTO> getTopicsByAuthor(@PathVariable String username) {
+        com.utcn.demo.dto.Requests.UserRequestDTO authorDto = new com.utcn.demo.dto.Requests.UserRequestDTO(username, null, null);
+        return topicService.getTopicsByAuthor(authorDto);
+    }
+
+    @PutMapping("/{id}/accept-answer")
+    public TopicResponseDTO acceptAnswer(@PathVariable Long id, Principal principal) {
+        return userService.findByUsername(principal.getName())
+                .map(user -> topicService.acceptAnswer(id, user.id()))
+                .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
+    }
+
+    @PostMapping("/{id}/vote")
+    public void voteTopic(@PathVariable Integer id, @RequestParam String voteType, Principal principal) {
+        userService.findByUsername(principal.getName())
+                .ifPresentOrElse(
+                        user -> voteService.voteTopic(id, user.id(), voteType),
+                        () -> { throw new RuntimeException("Sesiune invalida"); }
+                );
+    }
+
+
+
     @DeleteMapping("/{id}")
     public void deleteTopic(@PathVariable Long id, Principal principal) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+        userService.findByUsername(principal.getName())
+                .ifPresentOrElse(
+                        user -> topicService.deleteTopic(id, user.id()),
+                        () -> { throw new RuntimeException("Sesiune invalida"); }
+                );
     }
 }
