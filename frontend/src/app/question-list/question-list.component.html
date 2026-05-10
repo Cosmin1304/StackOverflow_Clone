@@ -1,0 +1,40 @@
+<div class="questions-container">
+  <h2>Ultimele Întrebări</h2>
+
+  <!-- Trecem prin fiecare întrebare din lista noastră -->
+  <div class="question-card" *ngFor="let q of questions">
+
+    <!-- Partea din stânga: Voturi și Status -->
+    <div class="stats-column">
+      <div class="votes">
+        <strong>{{ q.voteCount }}</strong>
+        <span>voturi</span>
+      </div>
+      <!-- Statusul întrebării (Primită, În curs, Rezolvată) -->
+      <div class="status badge-{{ q.status.toLowerCase() }}">
+        {{ q.status }}
+      </div>
+    </div>
+
+    <!-- Partea din dreapta: Conținutul întrebării -->
+    <div class="content-column">
+      <h3 class="title" (click)="goToQuestion(q.id)">{{ q.title }}</h3>
+      <p class="text">{{ q.text }}</p>
+
+      <!-- Lista de tag-uri -->
+      <div class="tags">
+        <span class="tag" *ngFor="let tag of q.tags">{{ tag.name }}</span>
+      </div>
+
+      <!-- Detalii autor (Nume, Scor, Dată) -->
+      <div class="author-info">
+        <small>
+          întrebat de <strong>{{ q.author.username }}</strong>
+          (Scor: <span class="score">{{ q.author.score }}</span>)
+          pe {{ q.createdAt | date:'medium' }}
+        </small>
+      </div>
+    </div>
+
+  </div>
+</div>
