@@ -118,7 +118,6 @@ public class  TopicService {
         Topic topic = topicRepository.findById(id).orElseThrow(() -> new RuntimeException("topic not found"));
         if(!currentUserId.equals(topic.getAuthor().getId())) throw new RuntimeException("user not authorized");
         topicRepository.delete(topic);
-        throw new UnsupportedOperationException("De implementat");
     }
 
     @Transactional

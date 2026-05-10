@@ -51,14 +51,12 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Optional<User> findUserEntityByUsername(String username) {
-        // TODO: Implementează conform pașilor de mai sus
-        throw new UnsupportedOperationException("De implementat");
+        return userRepository.findByUsername(username);
     }
 
 
     @Transactional(readOnly = true)
     public List<UserResponseDTO> getAllUsers() {
-        // TODO: Implementează conform pașilor de mai sus
         List<User> users = new ArrayList<>();
         userRepository.findAll().forEach(users::add);
         return users.stream().map(userMapper::toResponse).collect(Collectors.toList());

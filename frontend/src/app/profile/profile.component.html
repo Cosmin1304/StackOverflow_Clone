@@ -1,0 +1,33 @@
+<div class="profile-container" *ngIf="currentUser">
+  <div class="profile-card">
+    <h2>Profilul Meu</h2>
+
+    <div class="stats-box">
+      <p>Scor reputație: <strong>{{ currentUser.score }}</strong> ⭐</p>
+      <p>Status: {{ currentUser.isBanned ? 'Blocat ❌' : 'Activ ✅' }}</p>
+    </div>
+
+    <hr>
+    <h3>Editează Datele</h3>
+
+    <form (ngSubmit)="onUpdate()">
+      <div class="form-group">
+        <label>Nume utilizator (5-32 caractere)</label>
+        <input type="text" [(ngModel)]="updateData.userName" name="userName">
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="updateData.userEmail" name="userEmail">
+      </div>
+
+      <div class="form-group">
+        <label>Parolă nouă (opțional, min 8 caractere, simboluri, cifre, litere)</label>
+        <input type="password" [(ngModel)]="updateData.userPassword" name="userPassword">
+      </div>
+
+      <button type="submit" class="btn-submit">Salvează Modificările</button>
+      <button type="button" class="btn-logout" (click)="onLogout()">Delogare</button>
+    </form>
+  </div>
+</div>

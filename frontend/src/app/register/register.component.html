@@ -9,17 +9,17 @@
     <form class="register-form">
       <div class="form-group">
         <label for="username">Nume utilizator</label>
-        <input type="text" id="username" placeholder="ex: cosmin_dev">
+        <input type="text" id="username" [(ngModel)]="registerData.userName" name="userName" placeholder="ex: cosmin_dev">
       </div>
 
       <div class="form-group">
         <label for="email">Adresă de Email</label>
-        <input type="email" id="email" placeholder="cosmin@example.com">
+        <input type="email" id="email" [(ngModel)]="registerData.userEmail" name="userEmail" placeholder="cosmin@example.com">
       </div>
 
       <div class="form-group">
         <label for="password">Parolă</label>
-        <input type="password" id="password" placeholder="••••••••">
+        <input type="password" id="password" [(ngModel)]="registerData.userPassword" name="userPassword" placeholder="••••••••">
       </div>
 
       <button type="button" class="btn-submit" (click)="onRegister()">Înregistrează-te</button>
