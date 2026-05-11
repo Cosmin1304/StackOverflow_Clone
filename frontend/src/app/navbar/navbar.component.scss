@@ -49,6 +49,7 @@
 .user-actions {
   display: flex;
   gap: 10px;
+  align-items: center;
 
   button {
     padding: 8px 12px;
@@ -56,6 +57,16 @@
     font-size: 0.85rem;
     cursor: pointer;
     border: 1px solid transparent;
+  }
+
+  .btn-ask {
+    background-color: #0074cc;
+    color: white;
+    margin-right: 5px;
+
+    &:hover {
+      background-color: #0063bf;
+    }
   }
 
   .btn-login {

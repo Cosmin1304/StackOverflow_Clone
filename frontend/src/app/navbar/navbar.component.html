@@ -8,13 +8,17 @@
 
     <!-- Bara de Căutare (pentru cerința de filtrare) -->
     <div class="search-bar">
-      <input type="text" placeholder="Caută întrebări...">
+      <input type="text"
+             placeholder="Caută întrebări..."
+             [(ngModel)]="searchTerm"
+             (ngModelChange)="onSearchChange()">
     </div>
 
     <!-- Acțiuni Utilizator -->
     <div class="user-actions">
       <button class="btn-login" routerLink="/login">Log in</button>
       <button class="btn-register" routerLink="/register">Sign up</button>
+      <button class="btn-ask" routerLink="/ask">Ask Question</button>
     </div>
   </div>
 </header>
