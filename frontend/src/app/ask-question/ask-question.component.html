@@ -1,0 +1,36 @@
+<div class="ask-container">
+  <div class="ask-header">
+    <h2>Pune o întrebare publică</h2>
+  </div>
+
+  <div class="ask-card">
+    <form class="ask-form">
+
+      <div class="form-group">
+        <label for="title">Titlu</label>
+        <p class="help-text">Fii specific și imaginează-ți că pui întrebarea altei persoane.</p>
+        <input type="text" id="title" placeholder="ex: Cum centrez un div în CSS?">
+      </div>
+
+      <div class="form-group">
+        <label for="body">Detalii (Text)</label>
+        <p class="help-text">Introdu toate detaliile necesare pentru ca cineva să îți poată răspunde.</p>
+        <textarea id="body" rows="8" placeholder="Scrie detaliile aici..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="pictureUrl">URL Imagine (Opțional)</label>
+        <p class="help-text">Dacă ai o poză ajutătoare, pune link-ul aici.</p>
+        <input type="text" id="pictureUrl" placeholder="https://exemplu.ro/poza.jpg">
+      </div>
+
+      <div class="form-group">
+        <label for="tags">Tag-uri</label>
+        <p class="help-text">Adaugă până la 5 tag-uri separate prin virgulă (ex: java, spring, css).</p>
+        <input type="text" id="tags" placeholder="ex: java, angular, css">
+      </div>
+
+      <button type="button" class="btn-submit" (click)="onSubmit()">Postează întrebarea</button>
+    </form>
+  </div>
+</div>

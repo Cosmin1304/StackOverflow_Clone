@@ -1,0 +1,90 @@
+<div class="detail-container" *ngIf="question">
+
+  <div class="question-header">
+    <h2>{{ question.title }}</h2>
+    <div class="meta-info">
+      Întrebat de <strong>{{ question.author.username }}</strong> pe {{ question.createdAt | date:'medium' }}
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <div class="question-content">
+      <div class="question-body">
+        <p>{{ question.text }}</p>
+        <div *ngIf="question.pictureUrl" class="post-image">
+          <img [src]="question.pictureUrl" alt="Imagine topic">
+        </div>
+      </div>
+
+      <div class="post-footer">
+
+        <div class="voter-horizontal">
+          <button class="vote-btn up" (click)="onVote('up', 'question')" title="Vot pozitiv">
+            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="currentColor" d="M2 13h14L9 4z"/></svg>
+          </button>
+          <span class="vote-count">{{ question.voteCount }}</span>
+          <button class="vote-btn down" (click)="onVote('down', 'question')" title="Vot negativ">
+            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="currentColor" d="M2 5h14l-7 9z"/></svg>
+          </button>
+        </div>
+
+        <div class="actions">
+          <button *ngIf="currentUser.id === question.author.id || currentUser.role === 'MODERATOR'" class="btn-edit">Edit</button>
+          <button *ngIf="currentUser.id === question.author.id || currentUser.role === 'MODERATOR'" class="btn-delete" (click)="onDelete('question')">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="answers-section">
+    <h3>{{ answers.length }} Răspunsuri</h3>
+
+    <div class="answer-card" *ngFor="let ans of answers">
+      <div class="answer-body">
+        <p class="answer-text">{{ ans.text }}</p>
+
+        <div class="answer-footer">
+          <div class="voter-horizontal small">
+            <button class="vote-btn up" (click)="onVote('up', 'answer')" title="Vot pozitiv">
+              <svg width="14" height="14" viewBox="0 0 18 18"><path fill="currentColor" d="M2 13h14L9 4z"/></svg>
+            </button>
+            <span class="vote-count">{{ ans.voteCount || 0 }}</span>
+            <button class="vote-btn down" (click)="onVote('down', 'answer')" title="Vot negativ">
+              <svg width="14" height="14" viewBox="0 0 18 18"><path fill="currentColor" d="M2 5h14l-7 9z"/></svg>
+            </button>
+          </div>
+
+          <div class="answer-meta-block">
+            <span class="actions">
+              <button *ngIf="currentUser.id === ans.author.id || currentUser.role === 'MODERATOR'" class="btn-link">Edit</button>
+              <button *ngIf="currentUser.id === ans.author.id || currentUser.role === 'MODERATOR'" class="btn-link delete" (click)="onDelete('answer')">Delete</button>
+            </span>
+            <span class="author-spec">
+              Răspuns de <strong>{{ ans.author.username }}</strong> pe {{ ans.createdAt | date:'shortDate' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="new-answer-section">
+    <h3>Răspunsul tău</h3>
+    <form class="answer-form">
+      <textarea placeholder="Scrie răspunsul tău detaliat aici..." rows="6"></textarea>
+      <div class="form-group" style="margin-top: 10px;">
+        <label>URL Imagine (opțional):</label>
+        <input type="text" placeholder="https://link-imagine.ro/img.png">
+      </div>
+      <button type="button" class="btn-submit" (click)="onPostAnswer()">Postează Răspunsul</button>
+    </form>
+  </div>
+
+</div>
+
+<div class="not-found-container" *ngIf="!question">
+  <h2>Întrebarea nu a fost găsită! 🕵️‍♂️</h2>
+  <a routerLink="/">Întoarce-te la lista de întrebări</a>
+</div>
