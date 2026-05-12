@@ -85,3 +85,30 @@
     &:hover { text-decoration: underline; }
   }
 }
+
+.is-invalid {
+  border-color: #c02d2d !important;
+
+  &:focus {
+    box-shadow: 0 0 0 4px rgba(192, 45, 45, 0.15) !important;
+  }
+}
+
+/* Stilul textului de eroare */
+.error-message {
+  color: #c02d2d;
+  display: block;
+  margin-top: 5px;
+
+  small {
+    font-size: 0.8rem;
+    display: block;
+  }
+}
+
+/* Dacă formularul are erori, butonul devine "sters" și nu poate fi apăsat */
+.btn-submit:disabled {
+  background-color: #a0c4e3 !important;
+  cursor: not-allowed;
+  opacity: 0.8;
+}

@@ -6,23 +6,54 @@
 
     <h2>Creare Cont Nou</h2>
 
-    <form class="register-form">
+    <form class="register-form" #registerForm="ngForm" (ngSubmit)="onRegister(registerForm.valid)">
+
       <div class="form-group">
         <label for="username">Nume utilizator</label>
-        <input type="text" id="username" [(ngModel)]="registerData.userName" name="userName" placeholder="ex: cosmin_dev">
+        <input type="text" id="username" name="username"
+               placeholder="ex: cosmin_dev"
+               [(ngModel)]="user.username"
+               #username="ngModel"
+               required minlength="3"
+               [ngClass]="{'is-invalid': username.invalid && (username.dirty || username.touched)}">
+
+        <div class="error-message" *ngIf="username.invalid && (username.dirty || username.touched)">
+          <small *ngIf="username.errors?.['required']">Numele este obligatoriu.</small>
+          <small *ngIf="username.errors?.['minlength']">Trebuie să aibă minim 3 caractere.</small>
+        </div>
       </div>
 
       <div class="form-group">
         <label for="email">Adresă de Email</label>
-        <input type="email" id="email" [(ngModel)]="registerData.userEmail" name="userEmail" placeholder="cosmin@example.com">
+        <input type="email" id="email" name="email"
+               placeholder="cosmin@example.com"
+               [(ngModel)]="user.email"
+               #email="ngModel"
+               required email
+               [ngClass]="{'is-invalid': email.invalid && (email.dirty || email.touched)}">
+
+        <div class="error-message" *ngIf="email.invalid && (email.dirty || email.touched)">
+          <small *ngIf="email.errors?.['required']">Adresa de email este obligatorie.</small>
+          <small *ngIf="email.errors?.['email']">Introduceți un email valid (ex: nume@domeniu.ro).</small>
+        </div>
       </div>
 
       <div class="form-group">
         <label for="password">Parolă</label>
-        <input type="password" id="password" [(ngModel)]="registerData.userPassword" name="userPassword" placeholder="••••••••">
+        <input type="password" id="password" name="password"
+               placeholder="••••••••"
+               [(ngModel)]="user.password"
+               #password="ngModel"
+               required minlength="6"
+               [ngClass]="{'is-invalid': password.invalid && (password.dirty || password.touched)}">
+
+        <div class="error-message" *ngIf="password.invalid && (password.dirty || password.touched)">
+          <small *ngIf="password.errors?.['required']">Parola este obligatorie.</small>
+          <small *ngIf="password.errors?.['minlength']">Parola trebuie să aibă minim 6 caractere.</small>
+        </div>
       </div>
 
-      <button type="button" class="btn-submit" (click)="onRegister()">Înregistrează-te</button>
+      <button type="submit" class="btn-submit" [disabled]="registerForm.invalid">Înregistrează-te</button>
     </form>
 
     <p class="login-text">

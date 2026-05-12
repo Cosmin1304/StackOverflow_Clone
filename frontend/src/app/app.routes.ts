@@ -1,16 +1,17 @@
 import { Routes } from '@angular/router';
 import { QuestionListComponent } from './question-list/question-list.component';
-import { LoginComponent } from './login/login.component';
-import { QuestionDetailComponent } from './question-detail/question-detail.component'
+import {LoginComponent} from './login/login.component';
+import { QuestionDetailComponent } from './question-detail/question-detail.component';
 import { RegisterComponent } from './register/register.component';
-import { ProfileComponent } from './profile/profile.component';
-import {AskQuestionComponent} from './ask-question/ask-question.component';
+import { AskQuestionComponent } from './ask-question/ask-question.component';
+import {authGuard} from './guards/auth-guard';
 
 export const routes: Routes = [
   { path: '', component: QuestionListComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'ask', component: AskQuestionComponent },
-  { path: 'question/:id', component: QuestionDetailComponent },
-  { path: 'profile', component: ProfileComponent }
+
+  { path: '', component: QuestionListComponent, canActivate: [authGuard] },
+  { path: 'ask', component: AskQuestionComponent, canActivate: [authGuard] },
+  { path: 'question/:id', component: QuestionDetailComponent, canActivate: [authGuard] },
   ];

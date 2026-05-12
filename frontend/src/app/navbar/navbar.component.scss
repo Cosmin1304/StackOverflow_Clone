@@ -58,7 +58,6 @@
     cursor: pointer;
     border: 1px solid transparent;
   }
-
   .btn-ask {
     background-color: #0074cc;
     color: white;
@@ -84,4 +83,16 @@
 
     &:hover { background-color: #0063bf; }
   }
+
+  .btn-logout {
+    background-color: transparent;
+    color: #6a737c;
+    border: 1px solid transparent;
+
+    &:hover {
+      background-color: #f1f2f3;
+      color: #232629;
+    }
+  }
 }
+
