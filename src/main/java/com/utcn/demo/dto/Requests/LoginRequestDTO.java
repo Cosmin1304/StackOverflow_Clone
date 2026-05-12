@@ -1,8 +1,7 @@
 package com.utcn.demo.dto.Requests;
 
-public record UserRequestDTO(
+public record LoginRequestDTO (
         String username,
-        String email,
         String password
 ) {
 }

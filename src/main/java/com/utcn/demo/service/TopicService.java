@@ -107,7 +107,7 @@ public class  TopicService {
 
     @Transactional(readOnly = true)
     public List<TopicResponseDTO> getTopicsByAuthor(UserRequestDTO authorDTO) {
-        Optional<User> author = userRepository.findByUsername(authorDTO.userName());
+        Optional<User> author = userRepository.findByUsername(authorDTO.username());
         author.orElseThrow(() -> new RuntimeException("username not found"));
         List<Topic> matchingTopics = topicRepository.findByAuthor(author.get());
         return mapOrThrow(matchingTopics, topicMapper::toResponse);

@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service'; // Injectăm AuthService
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
 
@@ -12,14 +13,13 @@ import { Router } from '@angular/router';
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss']
 })
-
 export class ProfileComponent implements OnInit {
   private userService = inject(UserService);
+  private authService = inject(AuthService); // Injectăm AuthService
   private router = inject(Router);
 
   currentUser: User | null = null;
 
-  //date pentru update (doar cele care se pot modifica)
   updateData = {
     userName: '',
     userEmail: '',
@@ -27,9 +27,11 @@ export class ProfileComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.currentUser = this.userService.getCurrentUser();
+    // Preluăm utilizatorul din sursa unică de adevăr (AuthService)
+    this.currentUser = this.authService.getCurrentUser();
+
     if (!this.currentUser) {
-      this.router.navigate(['/login']);//protejam ruta
+      this.router.navigate(['/login']);
     } else {
       this.updateData.userName = this.currentUser.username;
       this.updateData.userEmail = this.currentUser.email;
@@ -39,19 +41,20 @@ export class ProfileComponent implements OnInit {
   onUpdate() {
     if (this.currentUser) {
       this.userService.updateUser(this.currentUser.id, this.updateData).subscribe({
-        next: (updatedUser) => {
+        next: (updatedUser: User) => {
           alert('Profil actualizat cu succes!');
           this.currentUser = updatedUser;
+          // Opțional: Actualizează și datele din localStorage prin AuthService dacă e nevoie
         },
-        error: (err) => {
-          alert('Eroare la actualizare (Verifică restricțiile Regex de pe server!)');
+        error: (err: any) => {
+          alert('Eroare la actualizare!');
         }
       });
     }
   }
 
   onLogout() {
-    this.userService.logout();
+    this.authService.logout(); // Folosim metoda de logout din AuthService
     this.router.navigate(['/login']);
   }
 }

@@ -5,6 +5,7 @@ import { QuestionDetailComponent } from './question-detail/question-detail.compo
 import { RegisterComponent } from './register/register.component';
 import { AskQuestionComponent } from './ask-question/ask-question.component';
 import {authGuard} from './guards/auth-guard';
+import { ProfileComponent } from './profile/profile.component';
 
 export const routes: Routes = [
   { path: '', component: QuestionListComponent },
@@ -14,4 +15,5 @@ export const routes: Routes = [
   { path: '', component: QuestionListComponent, canActivate: [authGuard] },
   { path: 'ask', component: AskQuestionComponent, canActivate: [authGuard] },
   { path: 'question/:id', component: QuestionDetailComponent, canActivate: [authGuard] },
+  { path: 'profile', component: ProfileComponent },
   ];

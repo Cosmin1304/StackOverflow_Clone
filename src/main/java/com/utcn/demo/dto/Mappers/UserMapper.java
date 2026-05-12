@@ -7,11 +7,9 @@ import com.utcn.demo.entity.User;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class UserMapper {
@@ -32,11 +30,11 @@ public class UserMapper {
     }
     public User toEntity(UserRequestDTO userDTO){
         User user = new User();
-        user.setUsername(userDTO.userName());
-        user.setEmail(userDTO.userEmail());
+        user.setUsername(userDTO.username());
+        user.setEmail(userDTO.email());
         user.setScore(BigDecimal.ZERO);
         user.setIsBanned(false);
-        user.setPasswordHash(userDTO.userPassword());
+        user.setPasswordHash(userDTO.password());
         return user;
     }
 

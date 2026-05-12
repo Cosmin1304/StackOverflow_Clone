@@ -7,7 +7,6 @@ import com.utcn.demo.dto.Responses.UserResponseDTO;
 import com.utcn.demo.entity.User;
 import com.utcn.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -122,24 +119,24 @@ public class UserService {
      */
     private User applyUpdates(User existingUser, UserRequestDTO dto) {
         // Validare și setare Parolă - Verificăm întâi dacă s-a trimis o parolă (ca să nu stricăm update-urile parțiale)
-            if (isValidPassword(dto.userPassword())) {
-                existingUser.setPasswordHash(passwordEncoder.encode(dto.userPassword()));
+            if (isValidPassword(dto.password())) {
+                existingUser.setPasswordHash(passwordEncoder.encode(dto.password()));
             } else {
                 throw new IllegalArgumentException("Eșec validare: Parola trebuie să aibă între 8 și 32 de caractere, să conțină o literă mică, o literă mare, o cifră și un caracter special (@#$%^&+=!).");
             }
 
 
         // Validare și setare Email
-            if (isValidEmail(dto.userEmail())) {
-                existingUser.setEmail(dto.userEmail());
+            if (isValidEmail(dto.email())) {
+                existingUser.setEmail(dto.email());
             } else {
                 throw new IllegalArgumentException("Eșec validare: Adresa de email nu respectă un format valid (ex. nume@domeniu.com).");
             }
 
 
         // Validare și setare Username
-            if (isValid(dto.userName())) {
-                existingUser.setUsername(dto.userName());
+            if (isValid(dto.username())) {
+                existingUser.setUsername(dto.username());
             } else {
                 throw new IllegalArgumentException("Eșec validare: Username-ul trebuie să aibă între 5 și 32 de caractere și să conțină doar caractere alfanumerice.");
             }

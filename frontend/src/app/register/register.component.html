@@ -34,7 +34,7 @@
 
         <div class="error-message" *ngIf="email.invalid && (email.dirty || email.touched)">
           <small *ngIf="email.errors?.['required']">Adresa de email este obligatorie.</small>
-          <small *ngIf="email.errors?.['email']">Introduceți un email valid (ex: nume@domeniu.ro).</small>
+          <small *ngIf="email.errors?.['email']">Introduceți un email valid (ex: nume{{'@'}}domeniu.ro).</small>
         </div>
       </div>
 

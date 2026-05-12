@@ -3,17 +3,20 @@ import {Router, RouterLink} from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SearchService } from '../services/search.service';
 import { AuthService } from '../services/auth.service';
+import { CommonModule, AsyncPipe } from '@angular/common';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, CommonModule, AsyncPipe],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent {
   private searchService = inject(SearchService);
-  private authService = inject(AuthService);
+  public authService = inject(AuthService);
+  public userService = inject(UserService);
   private router = inject(Router);
 
   // Variabila care se leagă direct de input-ul din HTML
