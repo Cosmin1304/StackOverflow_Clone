@@ -29,8 +29,8 @@
         </div>
 
         <div class="actions">
-          <button *ngIf="currentUser.id === question.author.id || currentUser.role === 'MODERATOR'" class="btn-edit">Edit</button>
-          <button *ngIf="currentUser.id === question.author.id || currentUser.role === 'MODERATOR'" class="btn-delete" (click)="onDelete('question')">Delete</button>
+          <button *ngIf="canModify(question.author.id)" class="btn-edit">Edit</button>
+          <button *ngIf="canModify(question.author.id)" class="btn-delete" (click)="onDelete('question')">Delete</button>
         </div>
       </div>
     </div>
@@ -58,8 +58,8 @@
 
           <div class="answer-meta-block">
             <span class="actions">
-              <button *ngIf="currentUser.id === ans.author.id || currentUser.role === 'MODERATOR'" class="btn-link">Edit</button>
-              <button *ngIf="currentUser.id === ans.author.id || currentUser.role === 'MODERATOR'" class="btn-link delete" (click)="onDelete('answer')">Delete</button>
+                <button *ngIf="canModify(ans.author.id)" class="btn-link">Edit</button>
+                <button *ngIf="canModify(ans.author.id)" class="btn-link delete" (click)="onDelete('answer')">Delete</button>
             </span>
             <span class="author-spec">
               Răspuns de <strong>{{ ans.author.username }}</strong> pe {{ ans.createdAt | date:'shortDate' }}

@@ -1,4 +1,4 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {Component, inject, OnInit, Input} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Question } from '../models/question.model';
@@ -21,7 +21,7 @@ export class QuestionDetailComponent implements OnInit {
   answers: Answer[] = [];
 
   // SIMULARE UTILIZATOR (Aici vei schimba pentru a testa vizibilitatea)
-  currentUser = { id: 1, username: 'cosmin_dev', role: 'USER' };
+  @Input() currentUser = { id: 1, username: 'cosmin_dev', role: 'USER' };
 
   ngOnInit() {
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -45,5 +45,10 @@ export class QuestionDetailComponent implements OnInit {
     if(confirm('Ești sigur că vrei să ștergi?')) {
       alert(`${target} șters cu succes!`);
     }
+  }
+
+  canModify(authorId: number): boolean {
+    if (!this.currentUser) return false;
+    return this.currentUser.id === authorId || this.currentUser.role === 'MODERATOR';
   }
 }
