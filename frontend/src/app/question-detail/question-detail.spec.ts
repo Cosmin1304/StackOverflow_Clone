@@ -1,3 +1,4 @@
+import { expect } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { QuestionDetailComponent } from './question-detail.component';
