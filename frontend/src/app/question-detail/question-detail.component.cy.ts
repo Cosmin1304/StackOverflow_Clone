@@ -44,7 +44,14 @@ describe('QuestionDetailComponent - Testare de componenta', () => {
       ],
       //setarea datelor, inainte de randarea initiala
       componentProperties: {
-        currentUser: { id: userId, username: 'test_user', role: userRole }
+        currentUser: {
+          id: userId,
+          username: 'test_user',
+          roles: [userRole],
+          email: 'test@example.com',
+          score: 0,
+          isBanned: false
+        }
       }
     });
   };

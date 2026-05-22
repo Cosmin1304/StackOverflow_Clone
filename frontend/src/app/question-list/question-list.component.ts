@@ -1,9 +1,9 @@
 import {Component, inject, OnInit, Input} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Question } from '../models/question.model';
-import { mockQuestions } from '../models/mock-data';
 import { SearchService } from '../services/search.service';
+import { QuestionService } from '../services/question.service';
+import { TopicResponseDTO } from '../models/models';
 import { map, combineLatest, startWith, Observable } from 'rxjs';
 
 @Component({
@@ -14,25 +14,27 @@ import { map, combineLatest, startWith, Observable } from 'rxjs';
   styleUrls: ['./question-list.component.scss']
 })
 export class QuestionListComponent implements OnInit{
-  @Input()allQuestions: Question[] = mockQuestions;//lista completa originala
-  filteredQuestions$!: Observable<Question[]>;
+  filteredQuestions$!: Observable<TopicResponseDTO[]>;
 
   private router = inject(Router);
   private searchService = inject(SearchService);
+  private questionService = inject(QuestionService);
 
   ngOnInit() {
-    // Combinăm lista de întrebări cu termenul de căutare
-    this.filteredQuestions$ = this.searchService.currentSearchTerm.pipe(
-      startWith(''), // Ne asigurăm că avem o valoare inițială
-      map(term => this.getFilteredList(term))
+    this.filteredQuestions$ = combineLatest([
+      this.questionService.getQuestions(),
+      this.searchService.currentSearchTerm.pipe(startWith(''))
+    ]).pipe(
+      map(([questions, term]) => this.getFilteredList(questions, term))
     );
   }
 
   // Extragem logica de filtrare într-o funcție pură care returnează un array
-  private getFilteredList(term: string): Question[] {
-    if (!term) return [...this.allQuestions];
+  private getFilteredList(questions: TopicResponseDTO[], term: string): TopicResponseDTO[] {
+    if (!term) return questions;
     const lowerCaseTerm = term.toLowerCase();
-    return this.allQuestions.filter(q =>
+
+    return questions.filter(q =>
       q.title.toLowerCase().includes(lowerCaseTerm) ||
       q.text.toLowerCase().includes(lowerCaseTerm)
     );

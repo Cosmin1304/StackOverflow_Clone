@@ -13,17 +13,17 @@
     <form (ngSubmit)="onUpdate()">
       <div class="form-group">
         <label>Nume utilizator (5-32 caractere)</label>
-        <input type="text" [(ngModel)]="updateData.userName" name="userName">
+        <input type="text" [(ngModel)]="updateData.username" name="userName">
       </div>
 
       <div class="form-group">
         <label>Email</label>
-        <input type="email" [(ngModel)]="updateData.userEmail" name="userEmail">
+        <input type="email" [(ngModel)]="updateData.email" name="userEmail">
       </div>
 
       <div class="form-group">
         <label>Parolă nouă (opțional, min 8 caractere, simboluri, cifre, litere)</label>
-        <input type="password" [(ngModel)]="updateData.userPassword" name="userPassword">
+        <input type="password" [(ngModel)]="updateData.password" name="userPassword">
       </div>
 
       <button type="submit" class="btn-submit">Salvează Modificările</button>

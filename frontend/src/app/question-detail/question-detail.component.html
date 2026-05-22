@@ -29,7 +29,7 @@
         </div>
 
         <div class="actions">
-          <button *ngIf="canModify(question.author.id)" class="btn-edit">Edit</button>
+          <button *ngIf="canModify(question.author.id)" class="btn-edit" (click)="onEdit('question')">Edit</button>
           <button *ngIf="canModify(question.author.id)" class="btn-delete" (click)="onDelete('question')">Delete</button>
         </div>
       </div>
@@ -43,7 +43,7 @@
 
     <div class="answer-card" *ngFor="let ans of answers">
       <div class="answer-body">
-        <p class="answer-text">{{ ans.text }}</p>
+        <p class="answer-text">{{ ans.textContent }}</p>
 
         <div class="answer-footer">
           <div class="voter-horizontal small">
@@ -58,7 +58,7 @@
 
           <div class="answer-meta-block">
             <span class="actions">
-                <button *ngIf="canModify(ans.author.id)" class="btn-link">Edit</button>
+                <button *ngIf="canModify(ans.author.id)" class="btn-link" >Edit</button>
                 <button *ngIf="canModify(ans.author.id)" class="btn-link delete" (click)="onDelete('answer')">Delete</button>
             </span>
             <span class="author-spec">

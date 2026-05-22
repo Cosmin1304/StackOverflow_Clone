@@ -32,9 +32,10 @@ public class  TopicService {
     private final TopicMapper topicMapper;
 
     @Transactional
-    public TopicResponseDTO createTopic(TopicRequestDTO topic) {
+    public TopicResponseDTO createTopic(TopicRequestDTO topic, User author) {
         if(topic ==  null) throw new IllegalArgumentException("topic is null");
         Topic topicEntity = topicMapper.toEntity(topic);
+        topicEntity.setAuthor(author);
         return topicMapper.toResponse(topicRepository.save(topicEntity));
     }
 
@@ -46,13 +47,7 @@ public class  TopicService {
                 .flatMap(Collection::stream)
                 .filter(Objects::nonNull)
                 .map(topicMapper::toResponse)
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toList(),
-                        list -> {
-                            if (list.isEmpty()) throw new RuntimeException("No topics found");
-                            return list;
-                        }
-                ));
+                .collect(Collectors.toList());
 
     }
 
@@ -69,16 +64,16 @@ public class  TopicService {
                 .flatMap(Collection::stream)
                 .filter(Objects::nonNull)
                 .map(topicMapper::toResponse)
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toList(),
-                        (list) -> {
-                            if (list.isEmpty()) throw new RuntimeException("No topics found");
-                            return list;
-                        }
-                ));
-
-
+                .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public TopicResponseDTO getTopicById(Long id) {
+        return topicRepository.findById(id)
+                .map(topicMapper::toResponse)
+                .orElseThrow(() -> new RuntimeException("Topic not found"));
+    }
+
     public List<TopicResponseDTO> execute(List<Topic> topics) {
         return getTopicExecutor().apply(topics);
     }
@@ -89,13 +84,7 @@ public class  TopicService {
                 .flatMap(Collection::stream)
                 .filter(Objects::nonNull)
                 .map(mapper)
-                .collect(Collectors.collectingAndThen(
-                        Collectors.<R>toList(),
-                        (list) -> {
-                            if (list.isEmpty()) throw new RuntimeException("No topics found");
-                            return list;
-                        }
-                ));
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

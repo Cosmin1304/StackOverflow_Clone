@@ -2,8 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../services/user.service';
-import { AuthService } from '../services/auth.service'; // Injectăm AuthService
-import { User } from '../models/user.model';
+import { AuthService } from '../services/auth.service';
+import { UserResponseDTO, UserRequestDTO } from '../models/models';
 import { Router } from '@angular/router';
 
 @Component({
@@ -18,43 +18,43 @@ export class ProfileComponent implements OnInit {
   private authService = inject(AuthService); // Injectăm AuthService
   private router = inject(Router);
 
-  currentUser: User | null = null;
+  currentUser: UserResponseDTO | null = null;
 
-  updateData = {
-    userName: '',
-    userEmail: '',
-    userPassword: ''
+  updateData: UserRequestDTO = {
+    username: '',
+    email: '',
+    password: ''
   };
 
   ngOnInit() {
-    // Preluăm utilizatorul din sursa unică de adevăr (AuthService)
     this.currentUser = this.authService.getCurrentUser();
 
     if (!this.currentUser) {
       this.router.navigate(['/login']);
     } else {
-      this.updateData.userName = this.currentUser.username;
-      this.updateData.userEmail = this.currentUser.email;
+      this.updateData.username = this.currentUser.username;
+      this.updateData.email = this.currentUser.email;
     }
   }
 
   onUpdate() {
     if (this.currentUser) {
+      // Trimitem datele către backend
       this.userService.updateUser(this.currentUser.id, this.updateData).subscribe({
-        next: (updatedUser: User) => {
+        next: (updatedUser: UserResponseDTO) => {
           alert('Profil actualizat cu succes!');
           this.currentUser = updatedUser;
-          // Opțional: Actualizează și datele din localStorage prin AuthService dacă e nevoie
         },
         error: (err: any) => {
           alert('Eroare la actualizare!');
+          console.error(err);
         }
       });
     }
   }
 
   onLogout() {
-    this.authService.logout(); // Folosim metoda de logout din AuthService
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }

@@ -18,7 +18,7 @@
 
     <!-- Partea din dreapta: Conținutul întrebării -->
     <div class="content-column">
-      <h3 class="title" (click)="goToQuestion(q.id)">{{ q.title }}</h3>
+      <h3 class="title" (click)="goToQuestion(q.id)">{{ q.title || '[Întrebare fără titlu]'}}</h3>
       <p class="text">{{ q.text }}</p>
 
       <!-- Lista de tag-uri -->

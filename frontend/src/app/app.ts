@@ -6,7 +6,7 @@ import {AsyncPipe, CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavbarComponent, CommonModule, AsyncPipe],
+  imports: [RouterOutlet, NavbarComponent, CommonModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

@@ -1,7 +1,7 @@
 import { QuestionListComponent } from './question-list.component';
 import { SearchService } from '../services/search.service';
 import { Router } from '@angular/router';
-import { BehaviorSubject } from 'rxjs';
+import {BehaviorSubject, of} from 'rxjs';
 
 describe('QuestionListComponent - Testare de componenta', () => {
 
@@ -14,7 +14,7 @@ describe('QuestionListComponent - Testare de componenta', () => {
         id: 1,
         username: 'dev_user',
         email: 'dev@test.com',
-        roles: [],
+        roles: ['USER'],
         score: 10,
         isBanned: false
       },
@@ -31,7 +31,7 @@ describe('QuestionListComponent - Testare de componenta', () => {
         id: 2,
         username: 'angular_ninja',
         email: 'ninja@test.com',
-        roles: [],
+        roles: ['USER'],
         score: 150,
         isBanned: false
       },
@@ -58,7 +58,7 @@ describe('QuestionListComponent - Testare de componenta', () => {
         { provide: Router, useValue: { navigate: navigateStub } }
       ],
       componentProperties: {
-        allQuestions: testQuestions
+        filteredQuestions$: of(testQuestions)
       }
     });
   };
