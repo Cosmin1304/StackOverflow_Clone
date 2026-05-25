@@ -1,6 +1,8 @@
 package com.utcn.demo.controller;
 
+import com.utcn.demo.config.JwtUtil;
 import com.utcn.demo.dto.Requests.LoginRequestDTO;
+import com.utcn.demo.dto.Responses.AuthResponseDTO;
 import com.utcn.demo.dto.Responses.UserResponseDTO;
 import com.utcn.demo.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -14,14 +16,21 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponseDTO> login(@RequestBody LoginRequestDTO credentials) {
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO credentials) {
 
         System.out.println("Incercare de logare in baza de date pentru: " + credentials.username());
 
         return userService.findByUsername(credentials.username())
-                .map(user -> ResponseEntity.ok(user)) //se poate folosi si UserMapper pentru a returna un DTO in loc de User
+                .map(user -> {
+                    // 2. Generăm token-ul JWT pe baza username-ului
+                    String token = jwtUtil.generateToken(user.username());
+
+                    // 3. Returnăm noul AuthResponseDTO care conține token-ul și datele user-ului
+                    return ResponseEntity.ok(new AuthResponseDTO(token, user));
+                })
                 .orElse(ResponseEntity.status(401).build());
     }
 }

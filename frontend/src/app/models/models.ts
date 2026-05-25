@@ -48,7 +48,7 @@ export interface TopicRequestDTO {
 // --- MODELE PENTRU RASPUNSURI (ANSWERS) ---
 export interface AnswerResponseDTO {
   id: number;
-  textContent: string;
+  text: string;
   pictureUrl?: string;
   author: UserResponseDTO;
   voteCount: number;
@@ -57,6 +57,6 @@ export interface AnswerResponseDTO {
 }
 
 export interface AnswerRequestDTO {
-  textContent: string;
+  text: string;
   pictureUrl?: string;
 }

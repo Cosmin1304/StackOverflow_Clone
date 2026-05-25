@@ -48,4 +48,12 @@ export class QuestionService {
   updateQuestion(id: number, topicDTO: TopicRequestDTO): Observable<TopicResponseDTO> {
     return this.http.put<TopicResponseDTO>(`${this.apiUrl}/${id}`, topicDTO);
   }
+
+  deleteAnswer(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.answersApiUrl}/${id}`);
+  }
+
+  updateAnswer(id: number, newText: string): Observable<AnswerResponseDTO> {
+    return this.http.put<AnswerResponseDTO>(`${this.answersApiUrl}/${id}?newText=${newText}`, {});
+  }
 }

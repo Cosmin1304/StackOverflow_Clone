@@ -4,6 +4,12 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { UserResponseDTO, LoginRequestDTO } from '../models/models';
 
+export interface AuthResponseDTO {
+  token: string;
+  user: UserResponseDTO;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,6 +17,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private platformId = inject(PLATFORM_ID);
   private apiUrl = 'http://localhost:8080/api/auth';
+
   private loggedIn = new BehaviorSubject<boolean>(this.hasToken());
   isLoggedIn$ = this.loggedIn.asObservable();
 
@@ -34,13 +41,18 @@ export class AuthService {
   }
 
 
-  login(credentials: LoginRequestDTO): Observable<UserResponseDTO> {
-    return this.http.post<UserResponseDTO>(`${this.apiUrl}/login`, credentials).pipe(
-      tap((user: UserResponseDTO) => {
-        this.currentUser = user;
+  login(credentials: LoginRequestDTO): Observable<AuthResponseDTO> {
+    return this.http.post<AuthResponseDTO>(`${this.apiUrl}/login`, credentials).pipe(
+      tap((response: AuthResponseDTO) => {
+
+        this.currentUser = response.user;
+
         if (isPlatformBrowser(this.platformId)) {
-          localStorage.setItem('user', JSON.stringify(user));
+          // Salvăm ambele informații separat în localStorage
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('user', JSON.stringify(response.user));
         }
+
         this.loggedIn.next(true);
       })
     );
@@ -54,6 +66,7 @@ export class AuthService {
     this.currentUser = null;
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('user');
+      localStorage.removeItem('token');
     }
     this.loggedIn.next(false);
   }

@@ -1,16 +1,17 @@
 import {Component, inject, OnInit, ChangeDetectorRef} from '@angular/core';
-import {ActivatedRoute, RouterLink} from '@angular/router';
+import {ActivatedRoute, RouterLink, RouterModule} from '@angular/router';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { QuestionService } from '../services/question.service';
-import { TopicResponseDTO, AnswerResponseDTO, UserResponseDTO } from '../models/models';
+import { TopicResponseDTO, AnswerResponseDTO, UserResponseDTO, AnswerRequestDTO } from '../models/models';
 import { AuthService } from '../services/auth.service';
 
 
 @Component({
   selector: 'app-question-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,FormsModule, RouterLink],
   templateUrl: './question-detail.component.html',
   styleUrl: './question-detail.component.scss',
 })
@@ -24,6 +25,11 @@ export class QuestionDetailComponent implements OnInit {
   answers: AnswerResponseDTO[] = [];
 
   currentUser: UserResponseDTO | null = null;
+
+  newAnswer: AnswerRequestDTO = {
+    text: '',
+    pictureUrl: ''
+  };
 
   private cdr = inject(ChangeDetectorRef);
 
@@ -48,9 +54,73 @@ export class QuestionDetailComponent implements OnInit {
     });
   }
   onPostAnswer() {
-    alert('Răspunsul tău a fost adăugat!');
-    // Aici se va face apelul către Backend în Assignment 3
+    if (!this.newAnswer.text || this.newAnswer.text.trim() === '') {
+      alert('Te rog scrie un conținut pentru răspuns!');
+      return;
+    }
+
+    if (this.question) {
+      this.questionService.addAnswer(this.question.id, this.newAnswer).subscribe({
+        next: (savedAnswer) => {
+          alert('Răspunsul tău a fost adăugat cu succes!');
+
+          this.newAnswer = { text: '', pictureUrl: '' };
+
+          this.refreshAnswersList();
+        },
+        error: (err) => {
+          console.error('Eroare la salvarea răspunsului:', err);
+          alert('A apărut o eroare la salvarea răspunsului.');
+        }
+      });
+    }
   }
+
+  onDeleteAnswer(answerId: number) {
+    if (confirm('Ești sigur că vrei să ștergi acest răspuns?')) {
+      this.questionService.deleteAnswer(answerId).subscribe({
+        next: () => {
+          this.refreshAnswersList();
+          alert('Răspunsul a fost șters cu succes!');
+        },
+        error: (err) => {
+          console.error('Eroare la ștergerea răspunsului:', err);
+          alert('Nu s-a putut șterge răspunsul.');
+        }
+      });
+    }
+  }
+
+  onEditAnswer(ans: any) {
+    const currentText = ans.text;
+    const modifiedText = prompt('Modifică răspunsul tău:', currentText);
+
+    if (modifiedText && modifiedText.trim() !== '' && modifiedText !== currentText) {
+      this.questionService.updateAnswer(ans.id, modifiedText).subscribe({
+        next: () => {
+          this.refreshAnswersList();
+          alert('Răspunsul a fost modificat cu succes!');
+        },
+        error: (err) => {
+          console.error('Eroare la modificarea răspunsului:', err);
+          alert('Nu s-a putut salva modificarea.');
+        }
+      });
+    }
+  }
+
+  private refreshAnswersList() {
+    if (this.question) {
+      this.questionService.getAnswersForQuestion(this.question.id).subscribe({
+        next: (updatedAnswers) => {
+          this.answers = updatedAnswers;
+        },
+        error: (err) => console.error('Eroare la reîmprospătarea listei de răspunsuri', err)
+      });
+    }
+  }
+
+
 
   onVote(type: string, target: 'question' | 'answer') {
     console.log(`Vot ${type} pentru ${target}`);

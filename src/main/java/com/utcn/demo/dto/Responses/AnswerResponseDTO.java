@@ -5,7 +5,7 @@ import java.util.List;
 
 public record AnswerResponseDTO(
         Long id,
-        String textContent,
+        String text,
         String pictureUrl,
         LocalDateTime createdAt,
         UserResponseDTO author,

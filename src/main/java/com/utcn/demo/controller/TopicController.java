@@ -1,12 +1,10 @@
 package com.utcn.demo.controller;
 
 import com.utcn.demo.dto.Responses.TopicResponseDTO;
-import com.utcn.demo.entity.Topic;
 import com.utcn.demo.service.TopicService;
 import com.utcn.demo.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import java.security.Principal;
 import java.util.List;
 
 // TopicController — primește request-uri HTTP legate de topic-uri (întrebări pe forum).
@@ -31,22 +29,19 @@ public class TopicController {
     }
 
     @PostMapping
-    public TopicResponseDTO createTopic(@RequestBody com.utcn.demo.dto.Requests.TopicRequestDTO topic,
-                                        @RequestHeader(value = "X-Username", required = false) String username) {
-        if (username == null) throw new RuntimeException("Sesiune invalida (lipseste header-ul de username)");
+    public TopicResponseDTO createTopic(@RequestBody com.utcn.demo.dto.Requests.TopicRequestDTO topic, Principal principal) {
+        if (principal == null) throw new RuntimeException("Sesiune invalida (utilizator neautentificat)");
 
-        return userService.findUserEntityByUsername(username)
-                .map(user -> topicService.createTopic(topic,user))
+        return userService.findUserEntityByUsername(principal.getName())
+                .map(user -> topicService.createTopic(topic, user))
                 .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
     }
 
     @PutMapping("/{id}")
-    public TopicResponseDTO updateTopic(@PathVariable Long id,
-                                        @RequestBody com.utcn.demo.dto.Requests.TopicRequestDTO topic,
-                                        @RequestHeader(value = "X-Username", required = false) String username) {
-        if (username == null) throw new RuntimeException("Sesiune invalida");
+    public TopicResponseDTO updateTopic(@PathVariable Long id, @RequestBody com.utcn.demo.dto.Requests.TopicRequestDTO topic, Principal principal) {
+        if (principal == null) throw new RuntimeException("Sesiune invalida");
 
-        return userService.findByUsername(username)
+        return userService.findByUsername(principal.getName())
                 .map(user -> topicService.updateTopic(id, topic, user.id()))
                 .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
     }
@@ -71,22 +66,19 @@ public class TopicController {
     }
 
     @PutMapping("/{id}/accept-answer")
-    public TopicResponseDTO acceptAnswer(@PathVariable Long id,
-                                         @RequestHeader(value = "X-Username", required = false) String username) {
-        if (username == null) throw new RuntimeException("Sesiune invalida");
+    public TopicResponseDTO acceptAnswer(@PathVariable Long id, Principal principal) {
+        if (principal == null) throw new RuntimeException("Sesiune invalida");
 
-        return userService.findByUsername(username)
+        return userService.findByUsername(principal.getName())
                 .map(user -> topicService.acceptAnswer(id, user.id()))
                 .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
     }
 
     @PostMapping("/{id}/vote")
-    public void voteTopic(@PathVariable Integer id,
-                          @RequestParam String voteType,
-                          @RequestHeader(value = "X-Username", required = false) String username) {
-        if (username == null) throw new RuntimeException("Sesiune invalida");
+    public void voteTopic(@PathVariable Integer id, @RequestParam String voteType, Principal principal) {
+        if (principal == null) throw new RuntimeException("Sesiune invalida");
 
-        userService.findByUsername(username)
+        userService.findByUsername(principal.getName())
                 .ifPresentOrElse(
                         user -> voteService.voteTopic(id, user.id(), voteType),
                         () -> { throw new RuntimeException("Sesiune invalida"); }
@@ -94,11 +86,10 @@ public class TopicController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTopic(@PathVariable Long id,
-                            @RequestHeader(value = "X-Username", required = false) String username) {
-        if (username == null) throw new RuntimeException("Sesiune invalida");
+    public void deleteTopic(@PathVariable Long id, Principal principal) {
+        if (principal == null) throw new RuntimeException("Sesiune invalida");
 
-        userService.findByUsername(username)
+        userService.findByUsername(principal.getName())
                 .ifPresentOrElse(
                         user -> topicService.deleteTopic(id, user.id()),
                         () -> { throw new RuntimeException("Sesiune invalida"); }
