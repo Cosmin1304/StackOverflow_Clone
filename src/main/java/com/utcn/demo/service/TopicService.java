@@ -4,6 +4,7 @@ import com.utcn.demo.dto.Mappers.TopicMapper;
 import com.utcn.demo.dto.Requests.TopicRequestDTO;
 import com.utcn.demo.dto.Requests.UserRequestDTO;
 import com.utcn.demo.dto.Responses.TopicResponseDTO;
+import com.utcn.demo.entity.Tag;
 import com.utcn.demo.entity.Topic;
 import com.utcn.demo.entity.User;
 import com.utcn.demo.repository.TopicRepository;
@@ -12,10 +13,7 @@ import com.utcn.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,12 +28,29 @@ public class  TopicService {
     private final TopicRepository topicRepository;
     private final UserRepository userRepository;
     private final TopicMapper topicMapper;
+    private final TagRepository tagRepository;
 
     @Transactional
     public TopicResponseDTO createTopic(TopicRequestDTO topic, User author) {
         if(topic ==  null) throw new IllegalArgumentException("topic is null");
         Topic topicEntity = topicMapper.toEntity(topic);
         topicEntity.setAuthor(author);
+
+        if (topic.tagNames() != null && !topic.tagNames().isEmpty()) {
+            Set<Tag> managedTags = topic.tagNames().stream()
+                    .map(tagName -> {
+                        // Căutăm tag-ul. Dacă nu există în DB, îl creăm pe loc.
+                        return tagRepository.findByName(tagName)
+                                .orElseGet(() -> {
+                                    com.utcn.demo.entity.Tag newTag = new com.utcn.demo.entity.Tag();
+                                    newTag.setName(tagName);
+                                    return tagRepository.save(newTag);
+                                });
+                    })
+                    .collect(Collectors.toSet());
+            topicEntity.setTags(managedTags);
+        }
+
         return topicMapper.toResponse(topicRepository.save(topicEntity));
     }
 
@@ -133,6 +148,22 @@ public class  TopicService {
         if (dto.pictureUrl() != null && !dto.pictureUrl().trim().isEmpty()) {
             existingTopic.setPictureUrl(dto.pictureUrl());
         }
+
+        if (dto.tagNames() != null) {
+            java.util.Set<com.utcn.demo.entity.Tag> managedTags = dto.tagNames().stream()
+                    .map(tagName -> {
+                        return tagRepository.findByName(tagName)
+                                .orElseGet(() -> {
+                                    com.utcn.demo.entity.Tag newTag = new com.utcn.demo.entity.Tag();
+                                    newTag.setName(tagName);
+                                    return tagRepository.save(newTag);
+                                });
+                    })
+                    .collect(java.util.stream.Collectors.toSet());
+
+            existingTopic.setTags(managedTags);
+        }
+
         return existingTopic;
     }
 
