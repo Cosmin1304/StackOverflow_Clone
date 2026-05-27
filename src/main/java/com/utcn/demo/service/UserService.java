@@ -152,33 +152,37 @@ public class UserService {
      * Aceasta înlocuiește Function<> returnUpdatedUser.
      */
     private User applyUpdates(User existingUser, UserRequestDTO dto) {
-        // Validare și setare Parolă - Verificăm întâi dacă s-a trimis o parolă (ca să nu stricăm update-urile parțiale)
+
+        // 1. Validare și setare Parolă (DOAR dacă s-a completat o parolă nouă)
+        if (dto.password() != null && !dto.password().trim().isEmpty()) {
             if (isValidPassword(dto.password())) {
                 existingUser.setPasswordHash(passwordEncoder.encode(dto.password()));
             } else {
-                throw new IllegalArgumentException("Eșec validare: Parola trebuie să aibă între 8 și 32 de caractere, să conțină o literă mică, o literă mare, o cifră și un caracter special (@#$%^&+=!).");
+                // Am actualizat și textul erorii la minim 6 caractere
+                throw new IllegalArgumentException("Eșec validare: Parola trebuie să aibă minim 6 caractere, să conțină o literă mică, o literă mare, o cifră și un caracter special (@#$%^&+=!).");
             }
+        }
 
-
-        // Validare și setare Email
+        // 2. Validare și setare Email (DOAR dacă s-a trimis un email)
+        if (dto.email() != null && !dto.email().trim().isEmpty()) {
             if (isValidEmail(dto.email())) {
                 existingUser.setEmail(dto.email());
             } else {
                 throw new IllegalArgumentException("Eșec validare: Adresa de email nu respectă un format valid (ex. nume@domeniu.com).");
             }
+        }
 
-
-        // Validare și setare Username
+        // 3. Validare și setare Username (DOAR dacă s-a trimis un username)
+        if (dto.username() != null && !dto.username().trim().isEmpty()) {
             if (isValid(dto.username())) {
                 existingUser.setUsername(dto.username());
             } else {
                 throw new IllegalArgumentException("Eșec validare: Username-ul trebuie să aibă între 5 și 32 de caractere și să conțină doar caractere alfanumerice.");
             }
-
+        }
 
         return existingUser;
     }
-    // TODO come back to learn about pre compiled regex for better performance and
     // regex creation and matching rules
     private static boolean isValid(String input) {
         // Returns true if the string matches the pattern exactly
@@ -192,7 +196,7 @@ public class UserService {
 
     private static boolean isValidPassword(String password) {
         // Note: You must escape backslashes in Java strings
-        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,32}$";
+        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=!]).{6,32}$";
         return password != null && password.matches(regex);
     }
 }
