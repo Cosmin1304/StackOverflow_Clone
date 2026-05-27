@@ -3,7 +3,9 @@
   <div class="question-header">
     <h2>{{ question.title }}</h2>
     <div class="meta-info">
-      Întrebat de <strong>{{ question.author.username }}</strong> pe {{ question.createdAt | date:'medium' }}
+      Întrebat de <strong>{{ question.author.username }}</strong>
+      (Scor: <span class="score">{{ question.author.score }}</span>)
+      pe {{ question.createdAt | date:'medium' }}
     </div>
   </div>
 
@@ -115,7 +117,9 @@
                 <button *ngIf="canModify(ans.author.id)" class="btn-link delete" (click)="onDeleteAnswer(ans.id)">Delete</button>
             </span>
             <span class="author-spec">
-              Răspuns de <strong>{{ ans.author.username }}</strong> pe {{ ans.createdAt | date:'shortDate' }}
+              Răspuns de <strong>{{ ans.author.username }}</strong>
+              (Scor: <span class="score">{{ ans.author.score }}</span>)
+              pe {{ ans.createdAt | date:'shortDate' }}
             </span>
           </div>
         </div>
