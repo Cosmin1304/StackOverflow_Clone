@@ -154,28 +154,29 @@ export class QuestionDetailComponent implements OnInit {
     }
   }
 
+  onVote(direction: string, targetType: 'question' | 'answer', targetId: number): void {
+    const voteTypeStr = direction === 'up' ? 'UPVOTE' : 'DOWNVOTE';
 
-
-  onVote(type: string, target: 'question' | 'answer', id?: number) {
-    const voteType = type === 'up' ? 'UPVOTE' : 'DOWNVOTE';
-
-    if (target === 'question' && this.question) {
-      this.questionService.voteTopic(this.question.id, voteType).subscribe({
+    if (targetType === 'question') {
+      // Folosim this.questionService!
+      this.questionService.voteTopic(targetId, voteTypeStr).subscribe({
         next: () => {
-          // Reîncărcăm toată pagina ca să vedem noile scoruri și voturi
-          window.location.reload();
+          // Reîncărcăm datele ca să vedem noul scor pe ecran
+          this.ngOnInit();
         },
         error: (err) => {
-          alert(err.error?.message || err.error || 'Nu poți vota de două ori sau propria postare!');
+          console.error('Eroare la votare:', err);
         }
       });
-    } else if (target === 'answer' && id) {
-      this.questionService.voteAnswer(id, voteType).subscribe({
+    } else {
+      // Folosim this.questionService!
+      this.questionService.voteAnswer(targetId, voteTypeStr).subscribe({
         next: () => {
-          window.location.reload();
+          // Reîncărcăm datele
+          this.ngOnInit();
         },
         error: (err) => {
-          alert(err.error?.message || err.error || 'Nu poți vota de două ori sau propria postare!');
+          console.error('Eroare la votare:', err);
         }
       });
     }
@@ -229,6 +230,30 @@ export class QuestionDetailComponent implements OnInit {
         }
       });
     }
+  }
+
+  getScore(votes: any[]): number {
+    if (!votes || votes.length === 0) return 0;
+
+    let score = 0;
+    for (let vote of votes) {
+      if (vote.voteType === 'UPVOTE') {
+        score++;
+      } else if (vote.voteType === 'DOWNVOTE') {
+        score--;
+      }
+    }
+    return score;
+  }
+
+  hasUserVoted(votes: any[] | undefined, type: string): boolean {
+    if (!this.currentUser || !votes) return false;
+
+    // Căutăm votul lăsat de utilizatorul curent
+    const userVote = votes.find(v => v.userId === this.currentUser!.id);
+
+    // Verificăm dacă votul găsit corespunde cu tipul cerut (ex: 'UPVOTE')
+    return userVote?.voteType === type;
   }
 
 }

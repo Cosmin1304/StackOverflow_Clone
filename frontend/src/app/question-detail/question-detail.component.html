@@ -25,11 +25,15 @@
       <div class="post-footer">
 
         <div class="voter-horizontal" *ngIf="currentUser && question && question.author.id !== currentUser.id">
-          <button class="vote-btn up" (click)="onVote('up', 'question', question.id)">
+          <button class="vote-btn up"
+                  [class.active-up]="hasUserVoted(question.votes, 'UPVOTE')"
+                  (click)="onVote('up', 'question', question.id)">
             <svg width="14" height="14" viewBox="0 0 18 18"><path fill="currentColor" d="M2 13h14L9 4z"/></svg>
           </button>
-          <span class="vote-count">{{ question.voteCount }}</span>
-          <button class="vote-btn down" (click)="onVote('down', 'question', question.id)">
+          <span class="vote-count" title="Scor"> {{ getScore(question.votes || []) }} </span>
+          <button class="vote-btn down"
+                  [class.active-down]="hasUserVoted(question.votes, 'DOWNVOTE')"
+                  (click)="onVote('down', 'question', question.id)">
             <svg width="14" height="14" viewBox="0 0 18 18"><path fill="currentColor" d="M2 5h14l-7 9z"/></svg>
           </button>
         </div>
@@ -88,11 +92,15 @@
         <div class="answer-footer">
 
           <div class="voter-horizontal small" *ngIf="currentUser && ans.author.id !== currentUser.id">
-            <button class="vote-btn up" (click)="onVote('up', 'answer', ans.id)" title="Vot pozitiv">
+            <button class="vote-btn up"
+                    [class.active-up]="hasUserVoted(ans.votes, 'UPVOTE')"
+                    (click)="onVote('up', 'answer', ans.id)">
               <svg width="14" height="14" viewBox="0 0 18 18"><path fill="currentColor" d="M2 13h14L9 4z"/></svg>
             </button>
-            <span class="vote-count">{{ ans.voteCount || 0 }}</span>
-            <button class="vote-btn down" (click)="onVote('down', 'answer', ans.id)" title="Vot negativ">
+            <span class="vote-count">{{ getScore(ans.votes || []) }}</span>
+            <button class="vote-btn down"
+                    [class.active-down]="hasUserVoted(ans.votes, 'DOWNVOTE')"
+                    (click)="onVote('down', 'answer', ans.id)">
               <svg width="14" height="14" viewBox="0 0 18 18"><path fill="currentColor" d="M2 5h14l-7 9z"/></svg>
             </button>
           </div>

@@ -38,6 +38,19 @@ public class VoteService {
         Topic topic = topicRepository.findById(Long.valueOf(topicId))
                 .orElseThrow(() -> new RuntimeException("Topic doesn't exist"));
 
+        Optional<TopicVote> existingVoteOpt = topicVoteRepository.findByTopicIdAndUserId(Long.valueOf(topicId), userId);
+
+        if (existingVoteOpt.isPresent()) {
+            TopicVote existingVote = existingVoteOpt.get();
+            if (existingVote.getVoteType().equalsIgnoreCase(voteTypeString)) {
+                topicVoteRepository.delete(existingVote);
+            } else {
+                existingVote.setVoteType(voteTypeString.toUpperCase());
+                topicVoteRepository.save(existingVote);
+            }
+            return;
+        }
+
         processVote(userId, topic.getAuthor(),
                 u -> topic.getVotes().stream().anyMatch(v -> v.getUser().getId().equals(u.getId())),
                 voteTypeString, this::applyTopicScoreRules,
@@ -55,12 +68,26 @@ public class VoteService {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new RuntimeException("Answer doesn't exist"));
 
+        Optional<AnswerVote> existingVoteOpt = answerVoteRepository.findByAnswerIdAndUserId(answerId, userId);
+
+        if (existingVoteOpt.isPresent()) {
+            AnswerVote existingVote = existingVoteOpt.get();
+            if (existingVote.getVoteType().equalsIgnoreCase(voteTypeString)) {
+                answerVoteRepository.delete(existingVote);
+            } else {
+                existingVote.setVoteType(voteTypeString.toUpperCase());
+                answerVoteRepository.save(existingVote);
+            }
+            return;
+        }
+
         processVote(userId, answer.getAuthor(),
                 u -> answer.getVotes().stream().anyMatch(v -> v.getUser().getId().equals(u.getId())),
                 voteTypeString, this::applyAnswerScoreRules,
-                user -> strategyConsumerImplementation(user,answer,voteTypeString)
-                );
+                user -> strategyConsumerImplementation(user, answer, voteTypeString)
+        );
     }
+
     private void strategyConsumerImplementation (User user, Answer answer , String voteTypeString) {
         AnswerVote av = new AnswerVote();
         av.setAnswer(answer);
@@ -69,22 +96,26 @@ public class VoteService {
         answerVoteRepository.save(av);
     }
 
-    private void processVote(Long userId, User author, Predicate<User> alreadyVotedCheck, String voteType, ScoreStrategy strategy, Consumer<User> voteSaver) {
+    private void processVote(Long userId, User author, Predicate<User> alreadyVotedCheck,
+                             String voteType, ScoreStrategy strategy, Consumer<User> voteSaver) {
 
         User voter = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User doesn't exist"));
+
+        if (author == null) throw new RuntimeException("Target has no author");
         if (author.getId().equals(voter.getId())) {
             throw new RuntimeException("You cannot vote your own content!");
         }
-        if (author == null) throw new RuntimeException("Target has no author");
-        if (author.getId().equals(voter.getId())) throw new RuntimeException("You cannot vote your own content!");
-        if (alreadyVotedCheck.test(voter)) throw new RuntimeException("User already voted on this content!");
+
+        if (alreadyVotedCheck.test(voter)) {
+            throw new RuntimeException("User already voted on this content!");
+        }
 
         strategy.apply(voter, author, voteType.toUpperCase());
 
         voteSaver.accept(voter);
         userRepository.save(author);
-        userRepository.save(voter); // salveaza mereu si voter-ul (util in caz de penalizari pe answer downvote)
+        userRepository.save(voter);
     }
 
     @FunctionalInterface

@@ -58,6 +58,13 @@
     // Culori la hover specifice StackOverflow
     &.up:hover { color: #f48024; }   // Portocaliu la hover pe sus
     &.down:hover { color: #0074cc; } // Albastru la hover pe jos
+    &.active-up {
+      color: #f48024; // Portocaliu StackOverflow
+    }
+
+    &.active-down {
+      color: #0074cc; // Albastru StackOverflow
+    }
   }
 
   .vote-count {

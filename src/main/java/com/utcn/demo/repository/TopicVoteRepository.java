@@ -12,4 +12,6 @@ import java.util.Optional;
 public interface TopicVoteRepository extends CrudRepository<TopicVote, TopicVoteKey> {
 
     Optional<TopicVote> findById(TopicVoteKey id);
+
+    Optional<TopicVote> findByTopicIdAndUserId(Long topicId, Long userId);
 }

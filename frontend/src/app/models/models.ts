@@ -25,6 +25,11 @@ export interface TagDTO {
   name: string;
 }
 
+export interface VoteDTO {
+  userId: number;
+  voteType: string;
+}
+
 // --- MODELE PENTRU INTREBARI (TOPICS) ---
 export interface TopicResponseDTO {
   id: number;
@@ -36,6 +41,7 @@ export interface TopicResponseDTO {
   voteCount: number;
   status: string;
   tags: TagDTO[];
+  votes?: VoteDTO[];
 }
 
 export interface TopicRequestDTO {
@@ -54,6 +60,7 @@ export interface AnswerResponseDTO {
   voteCount: number;
   isAccepted: boolean;
   createdAt: string;
+  votes?: VoteDTO[];
 }
 
 export interface AnswerRequestDTO {
