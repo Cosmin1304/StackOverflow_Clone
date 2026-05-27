@@ -25,10 +25,15 @@ public class AuthController {
 
         return userService.findByUsername(credentials.username())
                 .map(user -> {
-                    // 2. Generăm token-ul JWT pe baza username-ului
+                    // 2. Utilizatorii banați nu se pot autentifica (ban indefinit).
+                    if (Boolean.TRUE.equals(user.isBanned())) {
+                        return ResponseEntity.status(403).<AuthResponseDTO>build();
+                    }
+
+                    // 3. Generăm token-ul JWT pe baza username-ului
                     String token = jwtUtil.generateToken(user.username());
 
-                    // 3. Returnăm noul AuthResponseDTO care conține token-ul și datele user-ului
+                    // 4. Returnăm noul AuthResponseDTO care conține token-ul și datele user-ului
                     return ResponseEntity.ok(new AuthResponseDTO(token, user));
                 })
                 .orElse(ResponseEntity.status(401).build());

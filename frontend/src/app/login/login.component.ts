@@ -29,7 +29,11 @@ export class LoginComponent {
         this.router.navigate(['/']);
       },
       error: (err) => {
-        alert('Eroare la autentificare! Verifica user-ul si parola.');
+        if (err?.status === 403) {
+          alert('Contul tău a fost banat. Contactează un moderator.');
+        } else {
+          alert('Eroare la autentificare! Verifica user-ul si parola.');
+        }
         console.error(err);
       }
     });

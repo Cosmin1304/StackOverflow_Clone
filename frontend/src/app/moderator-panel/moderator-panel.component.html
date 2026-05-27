@@ -1,0 +1,52 @@
+<div class="mod-container">
+  <h2>Panou Moderator</h2>
+  <p class="subtitle">Gestionează utilizatorii: banează sau debanează conturi.</p>
+
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <p *ngIf="loading">Se încarcă utilizatorii...</p>
+
+  <table *ngIf="!loading && users.length > 0">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Utilizator</th>
+      <th>Email</th>
+      <th>Scor</th>
+      <th>Roluri</th>
+      <th>Status</th>
+      <th>Acțiune</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let user of users">
+      <td>{{ user.id }}</td>
+      <td><strong>{{ user.username }}</strong></td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.score }}</td>
+      <td>
+        <span class="badge badge-role" *ngFor="let role of user.roles">{{ role }}</span>
+      </td>
+      <td>
+          <span class="badge" [ngClass]="user.isBanned ? 'badge-banned' : 'badge-active'">
+            {{ user.isBanned ? 'Banat' : 'Activ' }}
+          </span>
+      </td>
+      <td>
+        <span *ngIf="isSelf(user); else banAction" class="self-tag">— tu —</span>
+        <ng-template #banAction>
+          <button
+            [class.btn-unban]="user.isBanned"
+            [class.btn-ban]="!user.isBanned"
+            [disabled]="pendingId === user.id"
+            (click)="toggleBan(user)">
+            {{ user.isBanned ? 'Unban' : 'Ban' }}
+          </button>
+        </ng-template>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!loading && users.length === 0 && !errorMessage">Nu există utilizatori de afișat.</p>
+</div>

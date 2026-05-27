@@ -57,7 +57,12 @@
     font-size: 0.85rem;
     cursor: pointer;
     border: 1px solid transparent;
+    /* ACEASTA ESTE LINIA MAGICĂ:
+       Previne ca textul lung ("Moderator Panel") să se spargă pe 2 rânduri
+       și să facă navbar-ul gros. */
+    white-space: nowrap;
   }
+
   .btn-ask {
     background-color: #0074cc;
     color: white;
@@ -65,6 +70,18 @@
 
     &:hover {
       background-color: #0063bf;
+    }
+  }
+
+  /* Noul stil pentru butonul de moderator */
+  .btn-moderator {
+    background-color: #fdf2f2; /* Un fundal roșu foarte deschis */
+    color: #c0392b; /* Text roșu-vișiniu specific acțiunilor de mod */
+    border-color: #fbcbc5;
+
+    &:hover {
+      background-color: #f8e1e1;
+      color: #a52424;
     }
   }
 
@@ -96,7 +113,7 @@
   }
 
   .user-logged {
-    margin-left: 30px;
+    margin-left: 20px;
     color: #3b4045;
     font-size: 0.95rem;
 
@@ -104,6 +121,4 @@
       color: #0074cc;
     }
   }
-
 }
-

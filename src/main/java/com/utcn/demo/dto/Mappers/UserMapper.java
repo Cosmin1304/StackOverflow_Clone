@@ -16,7 +16,7 @@ public class UserMapper {
     public UserResponseDTO toResponse(User user){
         if(user == null) return null;
         List<String>roles = mapRolesToString(user.getRoles());
-        return new UserResponseDTO(user.getId(),user.getUsername(), user.getEmail(), user.getScore(),roles);
+        return new UserResponseDTO(user.getId(),user.getUsername(), user.getEmail(), user.getScore(),roles, user.getIsBanned());
 
 
     }

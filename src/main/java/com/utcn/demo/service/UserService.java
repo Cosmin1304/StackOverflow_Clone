@@ -66,6 +66,34 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+    // Banare/debanare a unui utilizator. Doar un MODERATOR poate face asta.
+    // Ban-ul este "indefinit": rămâne activ până când un moderator îl dezactivează (banned=false).
+    @Transactional
+    public UserResponseDTO setBanStatus(Long targetUserId, boolean banned, Long requesterId) {
+        if (!isModerator(requesterId)) {
+            throw new RuntimeException("Doar un moderator poate bana sau debana utilizatori");
+        }
+        if (Objects.equals(targetUserId, requesterId)) {
+            throw new RuntimeException("Nu te poți bana pe tine însuți");
+        }
+        return userRepository.findById(targetUserId)
+                .map(user -> {
+                    user.setIsBanned(banned);
+                    return userRepository.save(user);
+                })
+                .map(userMapper::toResponse)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    // Verifică dacă utilizatorul (după id) are rolul de MODERATOR.
+    @Transactional(readOnly = true)
+    public boolean isModerator(Long userId) {
+        return userRepository.findById(userId)
+                .map(user -> user.getRoles().stream()
+                        .anyMatch(role -> "MODERATOR".equals(role.getRoleName())))
+                .orElse(false);
+    }
+
 
 //    @Transactional
 //    public UserResponseDTO updateUser(Long id, UserRequestDTO userDetails, Long currentUserId) {

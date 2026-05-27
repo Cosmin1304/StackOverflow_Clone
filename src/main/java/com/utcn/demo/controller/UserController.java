@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 //
 // @RequestMapping("/api/users") — toate endpoint-urile din această clasă vor începe cu /api/users.
 // Ex: GET /api/users, POST /api/users/register, DELETE /api/users/5
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/users")
 @lombok.RequiredArgsConstructor
@@ -43,6 +44,18 @@ public class UserController {
     public UserResponseDTO updateUser(@PathVariable Long id, @RequestBody com.utcn.demo.dto.Requests.UserRequestDTO userDetails, Principal principal) {
         return userService.findByUsername(principal.getName())
                 .map(user -> userService.updateUser(id, userDetails, user.id()))
+                .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
+    }
+
+    // Banare/debanare a unui utilizator (toggle din panoul de moderator).
+    // Frontend-ul trimite starea dorită: banned=true (ban) sau banned=false (unban).
+    // Verificarea rolului de MODERATOR se face în UserService.setBanStatus.
+    @PutMapping("/{id}/ban-status")
+    public UserResponseDTO setBanStatus(@PathVariable Long id, @RequestParam boolean banned, Principal principal) {
+        if (principal == null) throw new RuntimeException("Sesiune invalida");
+
+        return userService.findByUsername(principal.getName())
+                .map(requester -> userService.setBanStatus(id, banned, requester.id()))
                 .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
     }
 

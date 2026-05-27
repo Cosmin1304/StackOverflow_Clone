@@ -62,6 +62,11 @@ export class AuthService {
     return this.currentUser;
   }
 
+  // True doar dacă utilizatorul logat are rolul de MODERATOR.
+  isModerator(): boolean {
+    return this.currentUser?.roles?.includes('MODERATOR') ?? false;
+  }
+
   logout() {
     this.currentUser = null;
     if (isPlatformBrowser(this.platformId)) {
