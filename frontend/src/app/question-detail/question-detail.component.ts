@@ -31,6 +31,11 @@ export class QuestionDetailComponent implements OnInit {
     pictureUrl: ''
   };
 
+  isUploadingImage: boolean = false;
+
+  editingAnswerId: number | null = null;
+  editAnswerData = { text: '', pictureUrl: '' };
+
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit() {
@@ -92,18 +97,47 @@ export class QuestionDetailComponent implements OnInit {
   }
 
   onEditAnswer(ans: any) {
-    const currentText = ans.text;
-    const modifiedText = prompt('Modifică răspunsul tău:', currentText);
+    this.editingAnswerId = ans.id;
+    this.editAnswerData.text = ans.text;
+    this.editAnswerData.pictureUrl = ans.pictureUrl || '';
+  }
 
-    if (modifiedText && modifiedText.trim() !== '' && modifiedText !== currentText) {
-      this.questionService.updateAnswer(ans.id, modifiedText).subscribe({
-        next: () => {
-          this.refreshAnswersList();
-          alert('Răspunsul a fost modificat cu succes!');
+  onCancelEdit() {
+    this.editingAnswerId = null;
+  }
+
+  onSaveEditAnswer(answerId: number) {
+    if (!this.editAnswerData.text || this.editAnswerData.text.trim() === '') {
+      alert('Conținutul nu poate fi gol!');
+      return;
+    }
+
+    this.questionService.updateAnswer(answerId, this.editAnswerData).subscribe({
+      next: () => {
+        this.refreshAnswersList();
+        alert('Răspunsul a fost modificat cu succes!');
+        this.editingAnswerId = null; // Ieșim din modul edit
+      },
+      error: (err) => {
+        console.error('Eroare la modificarea răspunsului:', err);
+        alert('Nu s-a putut salva modificarea.');
+      }
+    });
+  }
+
+  onEditFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.isUploadingImage = true;
+      this.questionService.uploadImage(file).subscribe({
+        next: (response) => {
+          this.editAnswerData.pictureUrl = response.url;
+          this.isUploadingImage = false;
         },
         error: (err) => {
-          console.error('Eroare la modificarea răspunsului:', err);
-          alert('Nu s-a putut salva modificarea.');
+          console.error('Eroare la upload:', err);
+          alert('Nu s-a putut încărca imaginea pe server.');
+          this.isUploadingImage = false;
         }
       });
     }
@@ -122,9 +156,29 @@ export class QuestionDetailComponent implements OnInit {
 
 
 
-  onVote(type: string, target: 'question' | 'answer') {
-    console.log(`Vot ${type} pentru ${target}`);
-    // Verificare conform cerinței: Utilizatorii nu pot vota propriile postări
+  onVote(type: string, target: 'question' | 'answer', id?: number) {
+    const voteType = type === 'up' ? 'UPVOTE' : 'DOWNVOTE';
+
+    if (target === 'question' && this.question) {
+      this.questionService.voteTopic(this.question.id, voteType).subscribe({
+        next: () => {
+          // Reîncărcăm toată pagina ca să vedem noile scoruri și voturi
+          window.location.reload();
+        },
+        error: (err) => {
+          alert(err.error?.message || err.error || 'Nu poți vota de două ori sau propria postare!');
+        }
+      });
+    } else if (target === 'answer' && id) {
+      this.questionService.voteAnswer(id, voteType).subscribe({
+        next: () => {
+          window.location.reload();
+        },
+        error: (err) => {
+          alert(err.error?.message || err.error || 'Nu poți vota de două ori sau propria postare!');
+        }
+      });
+    }
   }
 
   onDelete(target: 'question' | 'answer') {
@@ -154,5 +208,29 @@ export class QuestionDetailComponent implements OnInit {
 
   canModify(authorId: number): boolean {
     if (!this.currentUser) return false;
-    return this.currentUser.id === authorId || this.currentUser.roles.includes('MODERATOR');  }
+    return this.currentUser.id === authorId || this.currentUser.roles.includes('MODERATOR');
+  }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+
+    if (file) {
+      this.isUploadingImage = true;
+
+      this.questionService.uploadImage(file).subscribe({
+        next: (response) => {
+          this.newAnswer.pictureUrl = response.url;
+          this.isUploadingImage = false;
+        },
+        error: (err) => {
+          console.error('Eroare la upload:', err);
+          alert('Nu s-a putut încărca imaginea pe server.');
+          this.isUploadingImage = false;
+        }
+      });
+    }
+  }
+
 }
+
+

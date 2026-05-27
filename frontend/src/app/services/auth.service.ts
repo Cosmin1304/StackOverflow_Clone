@@ -67,6 +67,7 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
+      window.location.reload();
     }
     this.loggedIn.next(false);
   }

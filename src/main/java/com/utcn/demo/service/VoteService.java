@@ -69,11 +69,13 @@ public class VoteService {
         answerVoteRepository.save(av);
     }
 
-    private void processVote(Long userId, User author, Predicate<User> alreadyVotedCheck,
-                             String voteType, ScoreStrategy strategy, Consumer<User> voteSaver) {
+    private void processVote(Long userId, User author, Predicate<User> alreadyVotedCheck, String voteType, ScoreStrategy strategy, Consumer<User> voteSaver) {
+
         User voter = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User doesn't exist"));
-
+        if (author.getId().equals(voter.getId())) {
+            throw new RuntimeException("You cannot vote your own content!");
+        }
         if (author == null) throw new RuntimeException("Target has no author");
         if (author.getId().equals(voter.getId())) throw new RuntimeException("You cannot vote your own content!");
         if (alreadyVotedCheck.test(voter)) throw new RuntimeException("User already voted on this content!");

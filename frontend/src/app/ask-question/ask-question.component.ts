@@ -23,6 +23,8 @@ export class AskQuestionComponent {
     tagNames: []
   };
 
+  isUploadingImage: boolean = false;
+
   tagsString: string = '';
 
   onSubmit() {
@@ -54,5 +56,25 @@ export class AskQuestionComponent {
         alert('A apărut o eroare la salvare. Verifică conexiunea cu backend-ul!');
       }
     });
+  }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+
+    if (file) {
+      this.isUploadingImage = true;
+
+      this.questionService.uploadImage(file).subscribe({
+        next: (response) => {
+          this.newQuestion.pictureUrl = response.url;
+          this.isUploadingImage = false;
+        },
+        error: (err) => {
+          console.error('Eroare la upload:', err);
+          alert('Nu s-a putut încărca imaginea pe server.');
+          this.isUploadingImage = false;
+        }
+      });
+    }
   }
 }

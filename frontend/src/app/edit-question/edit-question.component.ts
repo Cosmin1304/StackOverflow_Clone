@@ -19,6 +19,7 @@ export class EditQuestionComponent {
 
   questionId!: number;
   tagsString: string = '';
+  isUploadingImage: boolean = false;
 
   editData: TopicRequestDTO = {
     title: '',
@@ -43,6 +44,24 @@ export class EditQuestionComponent {
       },
       error: (err) => console.error('Eroare la încărcarea întrebării:', err)
     });
+  }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.isUploadingImage = true;
+      this.questionService.uploadImage(file).subscribe({
+        next: (response) => {
+          this.editData.pictureUrl = response.url;
+          this.isUploadingImage = false;
+        },
+        error: (err) => {
+          console.error('Eroare la upload:', err);
+          alert('Nu s-a putut încărca imaginea pe server.');
+          this.isUploadingImage = false;
+        }
+      });
+    }
   }
 
   onUpdate() {

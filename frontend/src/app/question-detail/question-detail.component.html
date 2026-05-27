@@ -24,14 +24,18 @@
 
       <div class="post-footer">
 
-        <div class="voter-horizontal">
-          <button class="vote-btn up" (click)="onVote('up', 'question')" title="Vot pozitiv">
-            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="currentColor" d="M2 13h14L9 4z"/></svg>
+        <div class="voter-horizontal" *ngIf="currentUser && question && question.author.id !== currentUser.id">
+          <button class="vote-btn up" (click)="onVote('up', 'question', question.id)">
+            <svg width="14" height="14" viewBox="0 0 18 18"><path fill="currentColor" d="M2 13h14L9 4z"/></svg>
           </button>
           <span class="vote-count">{{ question.voteCount }}</span>
-          <button class="vote-btn down" (click)="onVote('down', 'question')" title="Vot negativ">
-            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="currentColor" d="M2 5h14l-7 9z"/></svg>
+          <button class="vote-btn down" (click)="onVote('down', 'question', question.id)">
+            <svg width="14" height="14" viewBox="0 0 18 18"><path fill="currentColor" d="M2 5h14l-7 9z"/></svg>
           </button>
+        </div>
+
+        <div class="voter-horizontal" *ngIf="!currentUser || (question && question.author.id === currentUser.id)">
+          <span class="vote-count" title="Scor"> {{ question.voteCount }} </span>
         </div>
 
         <div class="actions">
@@ -49,21 +53,56 @@
 
     <div class="answer-card" *ngFor="let ans of answers">
       <div class="answer-body">
-        <p class="answer-text">{{ ans.text }}</p>
+
+        <ng-container *ngIf="editingAnswerId !== ans.id">
+          <p class="answer-text">{{ ans.text }}</p>
+          <div *ngIf="ans.pictureUrl" class="post-image" style="margin-top: 10px;">
+            <img [src]="ans.pictureUrl" alt="Imagine răspuns" style="max-height: 250px; border-radius: 4px;">
+          </div>
+        </ng-container>
+
+        <div *ngIf="editingAnswerId === ans.id" class="edit-form-container" style="background: #f8f9f9; padding: 15px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #e4e6e8;">
+          <textarea
+            [(ngModel)]="editAnswerData.text"
+            rows="4"
+            style="width: 100%; padding: 10px; border: 1px solid #babfc4; border-radius: 4px; margin-bottom: 10px; font-family: inherit;">
+          </textarea>
+
+          <label style="font-weight: 500; font-size: 0.9rem;">Schimbă imaginea (opțional):</label>
+          <input type="file" accept="image/*" (change)="onEditFileSelected($event)" [disabled]="isUploadingImage" style="display: block; margin: 5px 0 10px 0;">
+
+          <div *ngIf="isUploadingImage" style="color: #f48024; margin-bottom: 10px; font-size: 0.9rem; font-weight: 500;">
+            Se încarcă imaginea...
+          </div>
+
+          <div *ngIf="editAnswerData.pictureUrl && !isUploadingImage" style="margin-bottom: 10px;">
+            <small style="color: #2e7d32; font-weight: bold;">Imagine nouă atașată ✅</small>
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button class="btn-submit" (click)="onSaveEditAnswer(ans.id)" [disabled]="isUploadingImage" style="margin-top: 0; padding: 6px 12px;">Salvează</button>
+            <button (click)="onCancelEdit()" style="background: none; border: none; cursor: pointer; color: #6a737c; font-weight: 500; font-size: 0.9rem;">Anulează</button>
+          </div>
+        </div>
 
         <div class="answer-footer">
-          <div class="voter-horizontal small">
-            <button class="vote-btn up" (click)="onVote('up', 'answer')" title="Vot pozitiv">
+
+          <div class="voter-horizontal small" *ngIf="currentUser && ans.author.id !== currentUser.id">
+            <button class="vote-btn up" (click)="onVote('up', 'answer', ans.id)" title="Vot pozitiv">
               <svg width="14" height="14" viewBox="0 0 18 18"><path fill="currentColor" d="M2 13h14L9 4z"/></svg>
             </button>
             <span class="vote-count">{{ ans.voteCount || 0 }}</span>
-            <button class="vote-btn down" (click)="onVote('down', 'answer')" title="Vot negativ">
+            <button class="vote-btn down" (click)="onVote('down', 'answer', ans.id)" title="Vot negativ">
               <svg width="14" height="14" viewBox="0 0 18 18"><path fill="currentColor" d="M2 5h14l-7 9z"/></svg>
             </button>
           </div>
 
+          <div class="voter-horizontal small" *ngIf="!currentUser || ans.author.id === currentUser.id">
+            <span class="vote-count" title="Scor"> {{ ans.voteCount || 0 }} </span>
+          </div>
+
           <div class="answer-meta-block">
-            <span class="actions">
+            <span class="actions" *ngIf="editingAnswerId !== ans.id">
                 <button *ngIf="canModify(ans.author.id)" class="btn-link" (click)="onEditAnswer(ans)">Edit</button>
                 <button *ngIf="canModify(ans.author.id)" class="btn-link delete" (click)="onDeleteAnswer(ans.id)">Delete</button>
             </span>
@@ -95,12 +134,23 @@
       </div>
 
       <div class="form-group" style="margin-top: 10px;">
-        <label>URL Imagine (opțional):</label>
+        <label>Atașează o imagine din PC (opțional):</label>
+
         <input
-          type="text"
-          name="pictureUrl"
-          [(ngModel)]="newAnswer.pictureUrl"
-          placeholder="https://link-imagine.ro/img.png">
+          type="file"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          [disabled]="isUploadingImage"
+          style="display: block; margin-top: 5px;">
+
+        <div *ngIf="isUploadingImage" style="color: #f48024; margin-top: 10px; font-weight: 500;">
+          Se încarcă imaginea...
+        </div>
+
+        <div *ngIf="newAnswer.pictureUrl && !isUploadingImage" style="margin-top: 10px;">
+          <small style="color: #2e7d32; font-weight: bold;">Imagine gata de postare! </small>
+          <img [src]="newAnswer.pictureUrl" alt="Preview" style="max-height: 120px; display: block; margin-top: 8px; border-radius: 4px; border: 1px solid #ccc;">
+        </div>
       </div>
 
       <button
@@ -117,6 +167,6 @@
 </div>
 
 <div class="not-found-container" *ngIf="!question">
-  <h2>Întrebarea nu a fost găsită! 🕵️‍♂️</h2>
+  <h2>Întrebarea nu a fost găsită! ️</h2>
   <a routerLink="/">Întoarce-te la lista de întrebări</a>
 </div>

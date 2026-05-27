@@ -58,6 +58,7 @@ public class AnswerService {
         Answer answer = answerMapper.toEntity(dto);
         answer.setCreatedAt(java.time.LocalDateTime.now()); //this may be optional
         answer.setTopic(topic);
+        answer.setPictureUrl(dto.pictureUrl());
 
         userRepository.findById(currentUserId).ifPresent(answer::setAuthor);
         if (answer.getAuthor() == null) {
@@ -82,13 +83,23 @@ public class AnswerService {
     }
 
     @Transactional
-    public AnswerResponseDTO updateAnswer(Long answerId, String newText, Long currentUserId) {
+    public AnswerResponseDTO updateAnswer(Long answerId, AnswerRequestDTO dto, Long currentUserId) {
         return answerRepository.findById(answerId)
                 .map(answer -> {
                     if (!Objects.equals(answer.getAuthor().getId(), currentUserId)) {
                         throw new RuntimeException("Only the author can edit this answer!");
                     }
-                    answer.setTextContent(newText);
+
+                    // Actualizăm textul
+                    if (dto.text() != null && !dto.text().trim().isEmpty()) {
+                        answer.setTextContent(dto.text());
+                    }
+
+                    // Actualizăm poza
+                    if (dto.pictureUrl() != null && !dto.pictureUrl().trim().isEmpty()) {
+                        answer.setPictureUrl(dto.pictureUrl());
+                    }
+
                     return answer;
                 })
                 .map(answerRepository::save)

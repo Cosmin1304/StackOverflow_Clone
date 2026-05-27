@@ -34,9 +34,9 @@ public class AnswerController {
     }
 
     @PutMapping("/{id}")
-    public AnswerResponseDTO updateAnswer(@PathVariable Long id, @RequestParam String newText, Principal principal) {
+    public AnswerResponseDTO updateAnswer(@PathVariable Long id, @RequestBody com.utcn.demo.dto.Requests.AnswerRequestDTO dto, Principal principal) {
         return userService.findByUsername(principal.getName())
-                .map(user -> answerService.updateAnswer(id, newText, user.id()))
+                .map(user -> answerService.updateAnswer(id, dto, user.id()))
                 .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
     }
 

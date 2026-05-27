@@ -43,7 +43,7 @@ public class AnswerMapper {
     public Answer toEntity(AnswerRequestDTO dto) {
         Answer answer = new Answer();
         answer.setTextContent(dto.text());
-        answer.setPictureUrl(dto.pictureURL());
+        answer.setPictureUrl(dto.pictureUrl());
         answer.setCreatedAt(LocalDateTime.now());
         return answer;
     }
