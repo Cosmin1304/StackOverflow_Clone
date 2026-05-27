@@ -39,6 +39,21 @@
       </div>
 
       <div class="form-group">
+        <label for="phoneNumber">Număr de telefon (WhatsApp)</label>
+        <input type="tel" id="phoneNumber" name="phoneNumber"
+               placeholder="+40712345678"
+               [(ngModel)]="user.phoneNumber"
+               #phoneNumber="ngModel"
+               required pattern="^\+[1-9]\d{6,14}$"
+               [ngClass]="{'is-invalid': phoneNumber.invalid && (phoneNumber.dirty || phoneNumber.touched)}">
+
+        <div class="error-message" *ngIf="phoneNumber.invalid && (phoneNumber.dirty || phoneNumber.touched)">
+          <small *ngIf="phoneNumber.errors?.['required']">Numărul de telefon este obligatoriu.</small>
+          <small *ngIf="phoneNumber.errors?.['pattern']">Folosește format internațional E.164 (ex: +40712345678).</small>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label for="password">Parolă</label>
         <input type="password" id="password" name="password"
                placeholder="••••••••"

@@ -29,6 +29,7 @@ public class UserService {
     private final TopicMapper topicMapper;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationService notificationService;
 
 
     @Transactional
@@ -79,7 +80,12 @@ public class UserService {
         return userRepository.findById(targetUserId)
                 .map(user -> {
                     user.setIsBanned(banned);
-                    return userRepository.save(user);
+                    User saved = userRepository.save(user);
+                    // Notificăm utilizatorul DOAR la banare (email + WhatsApp, asincron).
+                    if (banned) {
+                        notificationService.notifyUserBanned(saved);
+                    }
+                    return saved;
                 })
                 .map(userMapper::toResponse)
                 .orElseThrow(() -> new RuntimeException("User not found"));

@@ -53,7 +53,7 @@ public class TopicController {
 
     @GetMapping("/author/{username}")
     public List<TopicResponseDTO> getTopicsByAuthor(@PathVariable String username) {
-        com.utcn.demo.dto.Requests.UserRequestDTO authorDto = new com.utcn.demo.dto.Requests.UserRequestDTO(username, null, null);
+        com.utcn.demo.dto.Requests.UserRequestDTO authorDto = new com.utcn.demo.dto.Requests.UserRequestDTO(username, null, null, null);
         return topicService.getTopicsByAuthor(authorDto);
     }
 

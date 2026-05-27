@@ -12,6 +12,7 @@ export interface UserRequestDTO {
   username?: string;
   email?: string;
   password?: string;
+  phoneNumber?: string;
 }
 
 export interface LoginRequestDTO {

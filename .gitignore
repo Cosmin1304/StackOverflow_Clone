@@ -39,3 +39,6 @@ build/
 
 # Google Cloud Credentials
 src/main/resources/credentials.json
+
+# Secrete aplicatie (parole SMTP, token-uri Twilio etc.) — NU se urca pe GitHub
+secrets.properties

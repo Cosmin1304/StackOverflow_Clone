@@ -32,6 +32,7 @@ public class UserMapper {
         User user = new User();
         user.setUsername(userDTO.username());
         user.setEmail(userDTO.email());
+        user.setPhoneNumber(userDTO.phoneNumber());
         user.setScore(BigDecimal.ZERO);
         user.setIsBanned(false);
         user.setPasswordHash(userDTO.password());

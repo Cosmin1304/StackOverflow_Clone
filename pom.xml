@@ -120,6 +120,20 @@
 			<version>1.19.0</version>
 		</dependency>
 
+		<!-- Email (SMTP) — oferă JavaMailSender pentru notificările de ban -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+		<!-- Twilio SDK — trimitere mesaje WhatsApp (și SMS).
+		     NOTĂ: dacă build-ul nu găsește versiunea, verifică ultima pe Maven Central și ajusteaz-o. -->
+		<dependency>
+			<groupId>com.twilio.sdk</groupId>
+			<artifactId>twilio</artifactId>
+			<version>10.1.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

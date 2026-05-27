@@ -19,7 +19,8 @@ export class RegisterComponent {
   user = {
     username: '',
     email: '',
-    password: ''
+    password: '',
+    phoneNumber: ''
   };
 
   onRegister(isFormValid: boolean | null) {
