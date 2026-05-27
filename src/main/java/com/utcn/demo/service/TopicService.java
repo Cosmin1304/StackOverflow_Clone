@@ -120,7 +120,7 @@ public class  TopicService {
 
     public void deleteTopic(Long id, Long currentUserId) {
         Topic topic = topicRepository.findById(id).orElseThrow(() -> new RuntimeException("topic not found"));
-        if(!currentUserId.equals(topic.getAuthor().getId())) throw new RuntimeException("user not authorized");
+        if(!isAuthorOrModerator(topic.getAuthor().getId(), currentUserId)) throw new RuntimeException("user not authorized");
         topicRepository.delete(topic);
     }
 
@@ -128,7 +128,7 @@ public class  TopicService {
     public TopicResponseDTO updateTopic(Long topicId, TopicRequestDTO updates, Long currentUserId) {
         return topicRepository.findById(topicId)
                 .map(existingTopic -> {
-                    if (!Objects.equals(existingTopic.getAuthor().getId(), currentUserId)) {
+                    if (!isAuthorOrModerator(existingTopic.getAuthor().getId(), currentUserId)) {
                         throw new RuntimeException("user not authorized");
                     }
                     return applyUpdates(existingTopic, updates);
@@ -136,6 +136,18 @@ public class  TopicService {
                 .map(topicRepository::save)
                 .map(topicMapper::toResponse)
                 .orElseThrow(() -> new RuntimeException("topic not found"));
+    }
+
+    // Permite acțiunea dacă utilizatorul curent este autorul SAU dacă are rolul de MODERATOR.
+    // Moderatorii pot edita/șterge topic-urile oricărui utilizator.
+    private boolean isAuthorOrModerator(Long authorId, Long currentUserId) {
+        if (Objects.equals(authorId, currentUserId)) {
+            return true;
+        }
+        return userRepository.findById(currentUserId)
+                .map(user -> user.getRoles().stream()
+                        .anyMatch(role -> "MODERATOR".equals(role.getRoleName())))
+                .orElse(false);
     }
 
     private Topic applyUpdates(Topic existingTopic, TopicRequestDTO dto) {

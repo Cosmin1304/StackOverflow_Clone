@@ -86,8 +86,8 @@ public class AnswerService {
     public AnswerResponseDTO updateAnswer(Long answerId, AnswerRequestDTO dto, Long currentUserId) {
         return answerRepository.findById(answerId)
                 .map(answer -> {
-                    if (!Objects.equals(answer.getAuthor().getId(), currentUserId)) {
-                        throw new RuntimeException("Only the author can edit this answer!");
+                    if (!isAuthorOrModerator(answer.getAuthor().getId(), currentUserId)) {
+                        throw new RuntimeException("Only the author or a moderator can edit this answer!");
                     }
 
                     // Actualizăm textul
@@ -111,8 +111,8 @@ public class AnswerService {
     public void deleteAnswer(Long answerId, Long currentUserId) {
         answerRepository.findById(answerId).ifPresentOrElse(
                 answer -> {
-                    if (!Objects.equals(answer.getAuthor().getId(), currentUserId)) {
-                        throw new RuntimeException("Only the author can delete this answer!");
+                    if (!isAuthorOrModerator(answer.getAuthor().getId(), currentUserId)) {
+                        throw new RuntimeException("Only the author or a moderator can delete this answer!");
                     }
                     answerRepository.delete(answer);
                 },
@@ -120,5 +120,17 @@ public class AnswerService {
                     throw new RuntimeException("Answer not found");
                 }
         );
+    }
+
+    // Permite acțiunea dacă utilizatorul curent este autorul SAU dacă are rolul de MODERATOR.
+    // Moderatorii pot edita/șterge răspunsurile oricărui utilizator.
+    private boolean isAuthorOrModerator(Long authorId, Long currentUserId) {
+        if (Objects.equals(authorId, currentUserId)) {
+            return true;
+        }
+        return userRepository.findById(currentUserId)
+                .map(user -> user.getRoles().stream()
+                        .anyMatch(role -> "MODERATOR".equals(role.getRoleName())))
+                .orElse(false);
     }
 }
