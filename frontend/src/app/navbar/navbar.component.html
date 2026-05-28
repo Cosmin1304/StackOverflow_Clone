@@ -1,12 +1,10 @@
 <header class="navbar">
   <div class="nav-container">
-    <!-- Logo -->
     <div class="logo" routerLink="/">
       <span class="icon">🚀</span>
       <span class="text">Stack<strong>Overflow</strong></span>
     </div>
 
-    <!-- Bara de Căutare (pentru cerința de filtrare) -->
     <div class="search-bar">
       <input type="text"
              placeholder="Caută întrebări..."
@@ -14,14 +12,12 @@
              (ngModelChange)="onSearchChange()">
     </div>
 
-    <!-- Acțiuni Utilizator -->
     <ng-container *ngIf="authService.isLoggedIn$ | async; else guestActions">
       <div class="user-actions">
 
         <button class="btn-logout" routerLink="/profile">Profil</button>
         <button class="btn-ask" routerLink="/ask">Ask Question</button>
         <button class="btn-logout" (click)="goToMyQuestions()">Întrebările Mele</button>
-        <!-- Vizibil STRICT doar pentru moderatori -->
         <button *ngIf="authService.isModerator()" class="btn-moderator" routerLink="/moderator">Moderator Panel</button>
         <button class="btn-logout" (click)="onLogout()">Log out</button>
 

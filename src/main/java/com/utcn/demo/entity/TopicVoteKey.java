@@ -6,7 +6,6 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.util.Objects;
 
-// 4.1 Clasa pentru Cheia Compusă
 @Embeddable
 @Getter
 @Setter

@@ -9,12 +9,6 @@ import java.security.Principal;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 
-// @RestController — combină @Controller + @ResponseBody.
-// Spune Spring-ului că aceasta e o clasă care primește request-uri HTTP și returnează JSON direct
-// (nu view-uri HTML). Fiecare metodă returnează un obiect care se serializează automat în JSON.
-//
-// @RequestMapping("/api/users") — toate endpoint-urile din această clasă vor începe cu /api/users.
-// Ex: GET /api/users, POST /api/users/register, DELETE /api/users/5
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/users")
@@ -47,9 +41,6 @@ public class UserController {
                 .orElseThrow(() -> new RuntimeException("Sesiune invalida"));
     }
 
-    // Banare/debanare a unui utilizator (toggle din panoul de moderator).
-    // Frontend-ul trimite starea dorită: banned=true (ban) sau banned=false (unban).
-    // Verificarea rolului de MODERATOR se face în UserService.setBanStatus.
     @PutMapping("/{id}/ban-status")
     public UserResponseDTO setBanStatus(@PathVariable Long id, @RequestParam boolean banned, Principal principal) {
         if (principal == null) throw new RuntimeException("Sesiune invalida");

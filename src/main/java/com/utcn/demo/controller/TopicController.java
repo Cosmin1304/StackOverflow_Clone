@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
-// TopicController — primește request-uri HTTP legate de topic-uri (întrebări pe forum).
-// Endpoint-urile sunt sub /api/topics.
 @RestController
 @RequestMapping("/api/topics")
 @lombok.RequiredArgsConstructor

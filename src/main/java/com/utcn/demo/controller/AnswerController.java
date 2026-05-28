@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
-// AnswerController — primește request-uri HTTP legate de răspunsuri.
-// Răspunsurile sunt mereu legate de un topic (relație @ManyToOne).
-// Endpoint-urile sunt sub /api/answers.
 @RestController
 @RequestMapping("/api/answers")
 @lombok.RequiredArgsConstructor

@@ -19,19 +19,17 @@ export class NavbarComponent {
   public userService = inject(UserService);
   private router = inject(Router);
 
-  // Variabila care se leagă direct de input-ul din HTML
   searchTerm: string = '';
-  // Se apelează de fiecare dată când scrii o literă nouă
+
   onSearchChange() {
     this.searchService.changeSearchTerm(this.searchTerm);
   }
 
   onLogout() {
-    this.authService.logout(); // Schimbă starea în aplicație
-    this.router.navigate(['/login']); // Te trimite la pagina de Login
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
-  // Filtru "Întrebările mele" — navigare spre / cu queryParam author=<username>.
   goToMyQuestions() {
     const u = this.authService.getCurrentUser();
     if (u) {

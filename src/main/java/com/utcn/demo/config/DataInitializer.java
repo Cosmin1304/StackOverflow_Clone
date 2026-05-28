@@ -36,8 +36,7 @@ public class DataInitializer implements CommandLineRunner {
                     return roleRepository.save(newRole);
                 });
 
-        // Compara prin id, nu prin referința de obiect (Role nu are equals/hashCode custom),
-        // altfel `contains` returna fals și rolul era adăugat din nou la fiecare pornire.
+        // Comparam prin id: Role nu are equals/hashCode custom, deci `contains` ar adauga rolul de fiecare data.
         List<Role> currentRoles = new ArrayList<>(user.getRoles());
         Set<Long> seenIds = new HashSet<>();
         List<Role> deduped = new ArrayList<>();
@@ -55,7 +54,6 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println(">>> SUCCESS: Utilizatorul a primit rolul de MODERATOR!");
         }
 
-        // Rescriem lista doar dacă s-a schimbat ceva (curățire duplicate sau adăugare).
         if (deduped.size() != currentRoles.size() || !hasModerator) {
             user.getRoles().clear();
             user.getRoles().addAll(deduped);

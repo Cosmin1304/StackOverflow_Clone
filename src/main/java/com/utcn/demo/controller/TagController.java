@@ -7,9 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// TagController — primește request-uri HTTP legate de tag-uri.
-// Tag-urile sunt etichete care se atașează pe topic-uri (ex: "java", "spring", "sql").
-// Endpoint-urile sunt sub /api/tags.
 @RestController
 @RequestMapping("/api/tags")
 @lombok.RequiredArgsConstructor

@@ -25,11 +25,10 @@ export class RegisterComponent {
 
   onRegister(isFormValid: boolean | null) {
     if (isFormValid) {
-      // Chemăm UserService pentru crearea contului
       this.userService.registerUser(this.user).subscribe({
         next: (createdUser) => {
           alert('Cont creat cu succes! Te poți loga acum.');
-          this.router.navigate(['/login']); // Îl trimitem la login după creare
+          this.router.navigate(['/login']);
         },
         error: (err) => {
           console.error(err);

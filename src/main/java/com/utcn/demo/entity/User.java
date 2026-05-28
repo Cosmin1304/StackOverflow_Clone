@@ -25,8 +25,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    // Număr de telefon în format E.164 (ex: +40712345678), folosit pentru notificări WhatsApp.
-    // Nullable: utilizatorii existenți pot să nu aibă număr.
+    // Format E.164 (ex: +40712345678) cerut de Twilio pentru WhatsApp.
     @Column(name = "phone_number", length = 20)
     private String phoneNumber;
 

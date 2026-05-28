@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// Singurul endpoint expus de microserviciu: primeste un request de la spring_app
-// la banarea unui utilizator si fan-out catre email + WhatsApp (ambele @Async).
 @RestController
 @RequestMapping("/api/notify")
 @RequiredArgsConstructor
@@ -31,7 +29,6 @@ public class NotificationController {
         if (req.phoneNumber() != null && !req.phoneNumber().isBlank()) {
             whatsAppSender.sendBanWhatsApp(req.phoneNumber(), req.username());
         }
-        // 202 Accepted: am acceptat lucrul, dar trimiterea efectiva e asincrona.
         return ResponseEntity.accepted().build();
     }
 }

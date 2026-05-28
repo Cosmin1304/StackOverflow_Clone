@@ -13,11 +13,8 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // Cheia secreta folosita pentru a semna token-ul (intr-un proiect real, asta sta in application.properties)
-    // Am generat un string destul de lung si sigur pentru tine
     private static final String SECRET = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
-    // Token-ul este valid 24 de ore
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
 
     private Key getSignKey() {

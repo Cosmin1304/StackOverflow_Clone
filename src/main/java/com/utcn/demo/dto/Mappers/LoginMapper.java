@@ -15,7 +15,6 @@ public class LoginMapper {
         User user = new User();
         user.setUsername(loginDTO.username());
         user.setPasswordHash(loginDTO.password());
-        //la login avem nevoie doar de datele de autentificare
 
         return user;
     }

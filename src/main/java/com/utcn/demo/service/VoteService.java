@@ -13,17 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-// VoteService — logica de business pentru voturi (pe topic-uri și pe răspunsuri).
-// Voturile afectează REPUTAȚIA (scorul) utilizatorilor:
-//   - Topic  UPVOTE   : autorul +2.5
-//   - Topic  DOWNVOTE : autorul -1.5
-//   - Answer UPVOTE   : autorul +5
-//   - Answer DOWNVOTE : autorul -2.5  ȘI  votantul -1.5 (penalizare pentru down-vote pe răspuns)
-//
-// Reputația pleacă de la 0, poate fi negativă și folosește zecimale (BigDecimal).
-//
-// CONSTRÂNGERE IMPORTANTĂ: la schimbarea sau anularea unui vot, întâi ANULĂM (revert)
-// punctele vechi și abia apoi le aplicăm pe cele noi, ca scorul să rămână mereu corect.
+// La schimbarea/anularea unui vot, intai revert la vechi si abia apoi aplicam noul, ca scorul sa ramana corect.
 @Service
 @RequiredArgsConstructor
 public class VoteService {
@@ -33,7 +23,6 @@ public class VoteService {
     private final AnswerRepository answerRepository;
     private final AnswerVoteRepository answerVoteRepository;
 
-    // Valorile de reputație (pozitive); semnul corect se aplică mai jos.
     private static final BigDecimal QUESTION_UPVOTE = new BigDecimal("2.5");
     private static final BigDecimal QUESTION_DOWNVOTE = new BigDecimal("1.5");
     private static final BigDecimal ANSWER_UPVOTE = new BigDecimal("5.0");
@@ -56,7 +45,6 @@ public class VoteService {
         Optional<TopicVote> existingVoteOpt = topicVoteRepository.findByTopicIdAndUserId(Long.valueOf(topicId), userId);
 
         if (existingVoteOpt.isEmpty()) {
-            // 1) Vot nou: aplicăm punctele.
             applyTopicScore(author, newType, false);
             TopicVote tv = new TopicVote();
             tv.setTopic(topic);
@@ -67,14 +55,11 @@ public class VoteService {
             TopicVote existingVote = existingVoteOpt.get();
             String oldType = existingVote.getVoteType().toUpperCase();
 
-            // Întâi ANULĂM efectul votului vechi, indiferent ce urmează.
             applyTopicScore(author, oldType, true);
 
             if (oldType.equals(newType)) {
-                // 2) Același vot reapăsat => anulare (toggle off): am revertat deja, ștergem votul.
                 topicVoteRepository.delete(existingVote);
             } else {
-                // 3) Schimbare de vot (UPVOTE <-> DOWNVOTE): aplicăm punctele noului tip.
                 applyTopicScore(author, newType, false);
                 existingVote.setVoteType(newType);
                 topicVoteRepository.save(existingVote);
@@ -97,7 +82,6 @@ public class VoteService {
         Optional<AnswerVote> existingVoteOpt = answerVoteRepository.findByAnswerIdAndUserId(answerId, userId);
 
         if (existingVoteOpt.isEmpty()) {
-            // 1) Vot nou.
             applyAnswerScore(voter, author, newType, false);
             AnswerVote av = new AnswerVote();
             av.setAnswer(answer);
@@ -108,14 +92,11 @@ public class VoteService {
             AnswerVote existingVote = existingVoteOpt.get();
             String oldType = existingVote.getVoteType().toUpperCase();
 
-            // Întâi ANULĂM efectul votului vechi (inclusiv penalizarea votantului).
             applyAnswerScore(voter, author, oldType, true);
 
             if (oldType.equals(newType)) {
-                // 2) Anulare (toggle off).
                 answerVoteRepository.delete(existingVote);
             } else {
-                // 3) Schimbare de vot.
                 applyAnswerScore(voter, author, newType, false);
                 existingVote.setVoteType(newType);
                 answerVoteRepository.save(existingVote);
@@ -126,7 +107,6 @@ public class VoteService {
         userRepository.save(voter);
     }
 
-    // Validează votul și întoarce tipul normalizat (UPPERCASE).
     private String validateVote(User author, User voter, String voteTypeString) {
         if (author == null) throw new RuntimeException("Target has no author");
         if (author.getId().equals(voter.getId())) {
@@ -140,7 +120,6 @@ public class VoteService {
         return normalized;
     }
 
-    // Aplică (revert=false) sau anulează (revert=true) punctele unui vot pe TOPIC.
     private void applyTopicScore(User author, String voteType, boolean revert) {
         if (UPVOTE.equals(voteType)) {
             addScore(author, QUESTION_UPVOTE, revert);
@@ -151,8 +130,6 @@ public class VoteService {
         }
     }
 
-    // Aplică (revert=false) sau anulează (revert=true) punctele unui vot pe ANSWER.
-    // La DOWNVOTE, autorul pierde puncte ȘI votantul primește o penalizare.
     private void applyAnswerScore(User voter, User author, String voteType, boolean revert) {
         if (UPVOTE.equals(voteType)) {
             addScore(author, ANSWER_UPVOTE, revert);
@@ -164,7 +141,6 @@ public class VoteService {
         }
     }
 
-    // Adună delta la scor; dacă revert=true, adună inversul (anulează efectul).
     private static void addScore(User user, BigDecimal delta, boolean revert) {
         BigDecimal current = user.getScore() != null ? user.getScore() : BigDecimal.ZERO;
         user.setScore(current.add(revert ? delta.negate() : delta));

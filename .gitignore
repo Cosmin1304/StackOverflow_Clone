@@ -23,8 +23,7 @@ target/
 *.iml
 *.ipr
 *.xml
-# Important: NU ignora pom.xml-urile (Maven). *.xml de mai sus catches *all* XMLs;
-# whitelist-ul explicit asigura ca toate pom.xml din proiect sunt tracked.
+# *.xml de mai sus catches *all* XMLs; whitelist explicit ca pom.xml-urile Maven sa ramana tracked.
 !**/pom.xml
 
 ### NetBeans ###
@@ -43,5 +42,4 @@ build/
 # Google Cloud Credentials
 src/main/resources/credentials.json
 
-# Secrete aplicatie (parole SMTP, token-uri Twilio etc.) — NU se urca pe GitHub
 secrets.properties

@@ -16,7 +16,6 @@ import { map, combineLatest, startWith, Observable, switchMap } from 'rxjs';
 export class QuestionListComponent implements OnInit {
   filteredQuestions$!: Observable<TopicResponseDTO[]>;
 
-  // Filtru activ (afisat in banner). Setate de queryParams.
   activeTag: string | null = null;
   activeAuthor: string | null = null;
 
@@ -26,8 +25,6 @@ export class QuestionListComponent implements OnInit {
   private questionService = inject(QuestionService);
 
   ngOnInit() {
-    // Sursa intrebarilor depinde de queryParams (?tag=... / ?author=...).
-    // Cautarea text se aplica apoi local peste rezultat.
     this.filteredQuestions$ = combineLatest([
       this.route.queryParamMap,
       this.searchService.currentSearchTerm.pipe(startWith(''))

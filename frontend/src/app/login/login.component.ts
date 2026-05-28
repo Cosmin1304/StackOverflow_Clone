@@ -22,7 +22,6 @@ export class LoginComponent {
   credentials = { username: '', password: '' };
 
   onLogin() {
-    // Trimitem datele reale și ne abonăm la rezultat
     this.authService.login(this.credentials).subscribe({
       next: (user) => {
         console.log('Logat cu succes:', user);

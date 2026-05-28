@@ -48,7 +48,6 @@ export class AuthService {
         this.currentUser = response.user;
 
         if (isPlatformBrowser(this.platformId)) {
-          // Salvăm ambele informații separat în localStorage
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response.user));
         }
@@ -62,7 +61,6 @@ export class AuthService {
     return this.currentUser;
   }
 
-  // True doar dacă utilizatorul logat are rolul de MODERATOR.
   isModerator(): boolean {
     return this.currentUser?.roles?.includes('MODERATOR') ?? false;
   }

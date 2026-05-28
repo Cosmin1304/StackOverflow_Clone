@@ -48,7 +48,7 @@ export class QuestionDetailComponent implements OnInit {
       next: (data) => {
         this.question = data;
         this.cdr.detectChanges();
-        console.log("Datele primite în componentă:", this.question); // <--- UITĂ-TE ÎN CONSOLĂ
+        console.log("Datele primite în componentă:", this.question);
       },
       error: (err) => console.error('Eroare la încărcarea întrebării:', err)
     });
@@ -116,7 +116,7 @@ export class QuestionDetailComponent implements OnInit {
       next: () => {
         this.refreshAnswersList();
         alert('Răspunsul a fost modificat cu succes!');
-        this.editingAnswerId = null; // Ieșim din modul edit
+        this.editingAnswerId = null;
       },
       error: (err) => {
         console.error('Eroare la modificarea răspunsului:', err);
@@ -158,10 +158,8 @@ export class QuestionDetailComponent implements OnInit {
     const voteTypeStr = direction === 'up' ? 'UPVOTE' : 'DOWNVOTE';
 
     if (targetType === 'question') {
-      // Folosim this.questionService!
       this.questionService.voteTopic(targetId, voteTypeStr).subscribe({
         next: () => {
-          // Reîncărcăm datele ca să vedem noul scor pe ecran
           this.ngOnInit();
         },
         error: (err) => {
@@ -169,10 +167,8 @@ export class QuestionDetailComponent implements OnInit {
         }
       });
     } else {
-      // Folosim this.questionService!
       this.questionService.voteAnswer(targetId, voteTypeStr).subscribe({
         next: () => {
-          // Reîncărcăm datele
           this.ngOnInit();
         },
         error: (err) => {
@@ -186,11 +182,10 @@ export class QuestionDetailComponent implements OnInit {
     if (confirm('Ești sigur că vrei să ștergi? Această acțiune este ireversibilă!')) {
 
       if (target === 'question' && this.question) {
-        // Apelăm serviciul pentru a șterge din baza de date
         this.questionService.deleteQuestion(this.question.id).subscribe({
           next: () => {
             alert('Întrebarea a fost ștearsă cu succes!');
-            this.router.navigate(['/']); // Ne întoarcem la lista de întrebări
+            this.router.navigate(['/']);
           },
           error: (err) => {
             console.error('Eroare la ștergere:', err);
@@ -249,10 +244,7 @@ export class QuestionDetailComponent implements OnInit {
   hasUserVoted(votes: any[] | undefined, type: string): boolean {
     if (!this.currentUser || !votes) return false;
 
-    // Căutăm votul lăsat de utilizatorul curent
     const userVote = votes.find(v => v.userId === this.currentUser!.id);
-
-    // Verificăm dacă votul găsit corespunde cu tipul cerut (ex: 'UPVOTE')
     return userVote?.voteType === type;
   }
 
