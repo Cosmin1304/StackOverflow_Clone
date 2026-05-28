@@ -12,7 +12,7 @@ jobs:
   # ===== BACKEND: spring_app + notification-service =====
   backend-test:
     name: Backend tests (Maven, JUnit)
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,12 +24,7 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
-      # Pe runner-ul self-hosted nu putem presupune ca Maven e instalat la nivel de OS,
-      # asa ca il setam explicit (functioneaza si pe Windows si pe Linux).
-      - name: Set up Maven
-        uses: stCarolas/setup-maven@v5
-        with:
-          maven-version: 3.9.6
+      # `mvn` e preinstalat pe runner-ul ubuntu-latest — il folosim direct.
 
       # Aplicatia principala (root). Spring Boot Test ruleaza toate clasele @Test din src/test.
       - name: Run main app tests
@@ -43,7 +38,7 @@ jobs:
   # ===== FRONTEND: Cypress (component + E2E) =====
   frontend-test:
     name: Frontend tests (Cypress)
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend
