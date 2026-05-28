@@ -61,3 +61,6 @@ jobs:
           start: npm start
           wait-on: 'http://localhost:4200'
           wait-on-timeout: 180
+          # Doar specs care merg fara backend real (folosesc cy.intercept sau testeaza UI/router pur).
+          # Specele care fac register/login real (moderator, voting, user-*, etc.) ruleaza local cu docker compose up.
+          spec: cypress/e2e/auth-guard.cy.ts,cypress/e2e/register.cy.ts,cypress/e2e/route-security.cy.ts
