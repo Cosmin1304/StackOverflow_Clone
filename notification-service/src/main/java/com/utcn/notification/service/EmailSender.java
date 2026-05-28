@@ -1,4 +1,4 @@
-package com.utcn.demo.service;
+package com.utcn.notification.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,11 +7,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-// Trimite email-uri prin SMTP (Gmail). Metoda de trimitere e @Async ca să nu
-// blocheze acțiunea de ban dacă serverul SMTP e lent sau pică.
+// Trimite email-ul de notificare. @Async ca sa raspundem 202 rapid catre apelant
+// si sa nu blocam tranzactia de ban din spring_app daca SMTP-ul e lent.
 @Service
 @RequiredArgsConstructor
-public class EmailService {
+public class EmailSender {
 
     private final JavaMailSender mailSender;
 
@@ -24,19 +24,17 @@ public class EmailService {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromAddress);
             message.setTo(to);
-            message.setSubject("Contul tău StackOverflow a fost suspendat");
+            message.setSubject("Contul tau StackOverflow a fost suspendat");
             message.setText(
                     "Salut " + username + ",\n\n" +
-                    "Contul tău de pe StackOverflow a fost banat de un moderator. " +
-                    "Nu te vei mai putea autentifica până când banul este ridicat.\n\n" +
-                    "Dacă crezi că este o greșeală, te rugăm să contactezi echipa de moderare.\n\n" +
+                    "Contul tau de pe StackOverflow a fost banat de un moderator. " +
+                    "Nu te vei mai putea autentifica pana cand banul este ridicat.\n\n" +
                     "— Echipa StackOverflow"
             );
             mailSender.send(message);
-            System.out.println(">>> Email de ban trimis către " + to);
+            System.out.println(">>> [notification-svc] Email de ban trimis catre " + to);
         } catch (Exception e) {
-            // Nu propagăm eroarea: o notificare eșuată nu trebuie să strice banul.
-            System.err.println("Eroare la trimiterea email-ului de ban către " + to + ": " + e.getMessage());
+            System.err.println("[notification-svc] Eroare la trimiterea email-ului catre " + to + ": " + e.getMessage());
         }
     }
 }
