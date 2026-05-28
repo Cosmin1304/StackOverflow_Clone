@@ -60,9 +60,10 @@ describe('RegisterComponent - Testare de Componentă', () => {
 
     setupComponent();
 
-    //completam datele corect
+    //completam datele corect (inclusiv noul camp phoneNumber, format E.164)
     cy.get('#username').type('cosmin_dev');
     cy.get('#email').type('cosmo@test.ro');
+    cy.get('#phoneNumber').type('+40712345678');
     cy.get('#password').type('parola123');
 
     //butonul ar trebui sa fie acum activ
@@ -72,7 +73,8 @@ describe('RegisterComponent - Testare de Componentă', () => {
     cy.wrap(registerUserStub).should('have.been.calledWith', {
       username: 'cosmin_dev',
       email: 'cosmo@test.ro',
-      password: 'parola123'
+      password: 'parola123',
+      phoneNumber: '+40712345678'
     });
 
     //verificarea navigarii spre login
@@ -87,6 +89,7 @@ describe('RegisterComponent - Testare de Componentă', () => {
 
     cy.get('#username').type('user_existent');
     cy.get('#email').type('test@test.ro');
+    cy.get('#phoneNumber').type('+40712345678');
     cy.get('#password').type('parola123');
 
     //interceptia ferestrei de alerta

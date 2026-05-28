@@ -41,7 +41,8 @@ describe('NavbarComponent - Testare de componenta', () => {
     const mockUser = { id: 1, username: 'alex_dev' };
     const authServiceMock = {
       isLoggedIn$: new BehaviorSubject<boolean>(true).asObservable(),
-      getCurrentUser: cy.stub().returns(mockUser)
+      getCurrentUser: cy.stub().returns(mockUser),
+      isModerator: cy.stub().returns(false) // Necesar dupa adaugarea butonului "Moderator Panel" in navbar
     };
 
     cy.mount(NavbarComponent, {
@@ -94,7 +95,8 @@ describe('NavbarComponent - Testare de componenta', () => {
     const authServiceMock = {
       isLoggedIn$: new BehaviorSubject<boolean>(true).asObservable(),
       getCurrentUser: cy.stub().returns({ username: 'test' }),
-      logout: cy.stub().as('logoutStub')
+      logout: cy.stub().as('logoutStub'),
+      isModerator: cy.stub().returns(false) // Necesar dupa adaugarea butonului "Moderator Panel" in navbar
     };
 
     const routerMock = {

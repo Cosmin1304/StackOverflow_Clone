@@ -93,11 +93,12 @@ describe('ProfileComponent - Testare de componenta', () => {
     //simuleaza apasarea butonului de summit
     cy.get('.btn-submit').click();
 
-    //verifica daca serviciul a fost apelat cu id-ul corect si datele din formular
+    //verifica daca serviciul a fost apelat cu id-ul corect si datele din formular.
+    //Cheile reflecta UserRequestDTO actual: { username, email, password }.
     cy.wrap(updateUserStub).should('have.been.calledWith', 1, {
-      userName: 'nume_nou',
-      userEmail: 'nou@test.com',
-      userPassword: 'parola123'
+      username: 'nume_nou',
+      email: 'nou@test.com',
+      password: 'parola123'
     });
   });
 
