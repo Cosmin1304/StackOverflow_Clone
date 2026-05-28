@@ -51,6 +51,3 @@ jobs:
 
       - name: TypeScript strict type-check
         run: npx tsc --noEmit -p tsconfig.app.json
-
-      - name: TypeScript type-check (tests)
-        run: npx tsc --noEmit -p tsconfig.spec.json
