@@ -9,7 +9,7 @@ import { UserResponseDTO } from '../models/models';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './moderator-panel.component.html',
-  styleUrl: './moderator-panel.component.scss' // <--- Legătura către noul fișier
+  styleUrl: './moderator-panel.component.scss'
 })
 export class ModeratorPanelComponent implements OnInit {
   private userService = inject(UserService);

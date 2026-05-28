@@ -7,8 +7,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-// Trimite email-ul de notificare. @Async ca sa raspundem 202 rapid catre apelant
-// si sa nu blocam tranzactia de ban din spring_app daca SMTP-ul e lent.
 @Service
 @RequiredArgsConstructor
 public class EmailSender {

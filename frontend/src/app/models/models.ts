@@ -1,4 +1,3 @@
-// --- MODELE PENTRU UTILIZATOR ---
 export interface UserResponseDTO {
   id: number;
   username: string;
@@ -20,7 +19,6 @@ export interface LoginRequestDTO {
   password?: string;
 }
 
-// --- MODELE PENTRU TAG-URI ---
 export interface TagDTO {
   id: number;
   name: string;
@@ -31,7 +29,6 @@ export interface VoteDTO {
   voteType: string;
 }
 
-// --- MODELE PENTRU INTREBARI (TOPICS) ---
 export interface TopicResponseDTO {
   id: number;
   title: string;
@@ -52,7 +49,6 @@ export interface TopicRequestDTO {
   tagNames?: string[];
 }
 
-// --- MODELE PENTRU RASPUNSURI (ANSWERS) ---
 export interface AnswerResponseDTO {
   id: number;
   text: string;

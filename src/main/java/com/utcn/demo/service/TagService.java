@@ -15,9 +15,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
 
-// TagService — conține logica de business pentru Tag-uri.
-// Tag-urile sunt etichete atașate topic-urilor (ex: "java", "spring", "database").
-// Permit filtrarea și categorizarea topic-urilor.
 @Service
 @RequiredArgsConstructor
 public class TagService {

@@ -8,8 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-// Trimite mesaje WhatsApp prin Twilio. Daca lipsesc credentialele Twilio,
-// serviciul porneste totusi si doar logheaza mesajele (skip silentios).
+// Daca lipsesc credentialele Twilio, serviciul porneste totusi si sare peste trimitere (skip silentios).
 @Service
 public class WhatsAppSender {
 

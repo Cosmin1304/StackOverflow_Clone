@@ -18,12 +18,10 @@ export class UserService {
     return this.http.put<UserResponseDTO>(`${this.apiUrl}/${id}`, updateData);
   }
 
-  // Lista tuturor utilizatorilor (folosită în panoul de moderator).
   getAllUsers(): Observable<UserResponseDTO[]> {
     return this.http.get<UserResponseDTO[]>(this.apiUrl);
   }
 
-  // Setează starea de ban a unui utilizator (banned=true => ban, false => unban).
   setBanStatus(id: number, banned: boolean): Observable<UserResponseDTO> {
     return this.http.put<UserResponseDTO>(`${this.apiUrl}/${id}/ban-status?banned=${banned}`, {});
   }

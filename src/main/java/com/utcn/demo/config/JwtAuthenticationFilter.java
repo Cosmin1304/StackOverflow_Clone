@@ -31,7 +31,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = null;
         String jwt = null;
 
-        // 1. Verificam daca exista header-ul si incepe cu "Bearer "
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
             try {
@@ -43,11 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // 2. Validam token-ul
             if (jwtUtil.validateToken(jwt, username)) {
 
-                // 3. Daca utilizatorul e BANAT, blocam orice request autentificat — chiar daca
-                // token-ul e inca valid. Asigura "cannot access the application neither via url".
+                // Banul are prioritate fata de token-ul JWT valid: nu lasam request-ul sa treaca.
                 Optional<User> userOpt = userRepository.findByUsername(username);
                 if (userOpt.isPresent() && Boolean.TRUE.equals(userOpt.get().getIsBanned())) {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -57,14 +54,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        username, null, new ArrayList<>()); // Aici vor veni rolurile mai târziu
+                        username, null, new ArrayList<>());
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
-        // Trimitem request-ul mai departe catre Controllere (Topic, Answer etc.)
         filterChain.doFilter(request, response);
     }
 }

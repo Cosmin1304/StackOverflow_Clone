@@ -73,7 +73,6 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<!-- Source: https://mvnrepository.com/artifact/org.modelmapper/modelmapper -->
 		<dependency>
 			<groupId>org.modelmapper</groupId>
 			<artifactId>modelmapper</artifactId>
@@ -119,9 +118,6 @@
 			<artifactId>google-auth-library-oauth2-http</artifactId>
 			<version>1.19.0</version>
 		</dependency>
-
-		<!-- Email + WhatsApp au fost mutate in microserviciul notification-service.
-		     Aplicatia principala doar face POST HTTP catre el. -->
 
 	</dependencies>
 

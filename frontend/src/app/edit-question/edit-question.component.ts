@@ -76,7 +76,7 @@ export class EditQuestionComponent {
     this.questionService.updateQuestion(this.questionId, this.editData).subscribe({
       next: () => {
         alert('Întrebarea a fost actualizată cu succes!');
-        this.router.navigate(['/question', this.questionId]); // Ne întoarcem la întrebare
+        this.router.navigate(['/question', this.questionId]);
       },
       error: (err) => {
         console.error('Eroare la editare:', err);

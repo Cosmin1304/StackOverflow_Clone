@@ -28,24 +28,20 @@ export class AskQuestionComponent {
   tagsString: string = '';
 
   onSubmit() {
-    // 1. Verificare: Titlul este gol?
     if (!this.newQuestion.title || this.newQuestion.title.trim() === '') {
       alert('Te rog să introduci un titlu pentru întrebare!');
-      return; // Ne oprim aici, nu mergem mai departe
+      return;
     }
 
-    // 2. Verificare: Textul este gol?
     if (!this.newQuestion.text || this.newQuestion.text.trim() === '') {
       alert('Te rog să adaugi detaliile întrebării!');
-      return; // Ne oprim aici
+      return;
     }
 
-    // 3. Dacă am ajuns aici, datele sunt corecte. Procesăm tag-urile:
     if (this.tagsString.trim()) {
       this.newQuestion.tagNames = this.tagsString.split(',').map(tag => tag.trim());
     }
 
-    // 4. Trimitem către backend
     this.questionService.addQuestion(this.newQuestion).subscribe({
       next: (response) => {
         alert('Întrebarea a fost publicată cu succes!');

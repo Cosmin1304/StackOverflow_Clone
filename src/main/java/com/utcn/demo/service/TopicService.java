@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
 
-// @Service — marchează clasa ca un Service Spring (bean detectat automat).
-// TopicService conține logica de business pentru Topic-uri (întrebări/discuții pe forum).
 @Service
 @RequiredArgsConstructor
 public class  TopicService {
@@ -39,7 +37,6 @@ public class  TopicService {
         if (topic.tagNames() != null && !topic.tagNames().isEmpty()) {
             Set<Tag> managedTags = topic.tagNames().stream()
                     .map(tagName -> {
-                        // Căutăm tag-ul. Dacă nu există în DB, îl creăm pe loc.
                         return tagRepository.findByName(tagName)
                                 .orElseGet(() -> {
                                     com.utcn.demo.entity.Tag newTag = new com.utcn.demo.entity.Tag();
@@ -138,8 +135,6 @@ public class  TopicService {
                 .orElseThrow(() -> new RuntimeException("topic not found"));
     }
 
-    // Permite acțiunea dacă utilizatorul curent este autorul SAU dacă are rolul de MODERATOR.
-    // Moderatorii pot edita/șterge topic-urile oricărui utilizator.
     private boolean isAuthorOrModerator(Long authorId, Long currentUserId) {
         if (Objects.equals(authorId, currentUserId)) {
             return true;

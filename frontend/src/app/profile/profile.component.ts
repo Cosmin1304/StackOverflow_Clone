@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 })
 export class ProfileComponent implements OnInit {
   private userService = inject(UserService);
-  private authService = inject(AuthService); // Injectăm AuthService
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   currentUser: UserResponseDTO | null = null;
@@ -39,7 +39,6 @@ export class ProfileComponent implements OnInit {
 
   onUpdate() {
     if (this.currentUser) {
-      // Trimitem datele către backend
       this.userService.updateUser(this.currentUser.id, this.updateData).subscribe({
         next: (updatedUser: UserResponseDTO) => {
           alert('Profil actualizat cu succes!');

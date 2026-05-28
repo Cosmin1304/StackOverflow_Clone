@@ -10,15 +10,12 @@ services:
         ME_CONFIG_POSTGRES_USER: ${POSTGRES_STACKOVERFLOW_USER}
         DB_HOST : postgres
         DB_NAME : stackoverflow
-        # IMPORTANT: hostname-ul NU poate contine underscore (Tomcat 10 respinge Host header invalid).
-        # De aceea service-ul Docker se numeste cu cratima: notification-service.
+        # Tomcat 10 respinge underscore in Host header — service-ul Docker foloseste cratima.
         NOTIFICATION_SERVICE_URL: http://notification-service:8081
     depends_on:
       - "postgres"
       - "notification-service"
 
-  # Microserviciu separat pentru notificari (email + WhatsApp).
-  # Apelat de spring_app pe reteaua interna Docker la POST /api/notify/ban.
   notification-service:
     build: ./notification-service
     env_file:
@@ -37,7 +34,5 @@ services:
     volumes:
       - ./init-db:/docker-entrypoint-initdb.d
       - postgres_data:/var/lib/postgresql/data
-#  auth:
-#    image: auth
 volumes:
   postgres_data:

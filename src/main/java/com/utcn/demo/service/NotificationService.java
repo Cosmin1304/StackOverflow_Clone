@@ -10,10 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
-// Client HTTP catre microserviciul de notificari (notification-service).
-// Nu mai trimitem direct email/WhatsApp — facem un POST si lasam microserviciul sa se ocupe.
-// @Async: trimiterea se face pe alt thread, ca sa nu blocam tranzactia de ban daca
-// microserviciul e lent sau picat (esuarea apelului este logata, nu propagata).
+// @Async: nu blocam tranzactia de ban daca microserviciul e lent/picat (esuarea apelului este logata, nu propagata).
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -27,7 +24,6 @@ public class NotificationService {
     public void notifyUserBanned(User user) {
         if (user == null || user.getUsername() == null) return;
 
-        // Citim valorile pe thread-ul apelant inainte de a iesi din metoda (fields simple — safe).
         String email = user.getEmail();
         String phoneNumber = user.getPhoneNumber();
         String username = user.getUsername();

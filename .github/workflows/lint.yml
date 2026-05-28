@@ -1,9 +1,5 @@
 name: Lint & Code Quality
 
-# Static analysis pe ambele jumatati ale aplicatiei.
-# Backend: compilatorul Java (catches type errors, missing imports, generics issues).
-# Frontend: TypeScript strict type-check pe sursele Angular (catches type errors,
-# unused imports, missing properties, signature mismatches).
 on:
   push:
     branches: [main, cosmin]
@@ -11,7 +7,6 @@ on:
     branches: [main]
 
 jobs:
-  # ===== BACKEND: compile-check pe ambele module Maven =====
   backend-compile:
     name: Backend compile check (Java)
     runs-on: ubuntu-latest
@@ -26,8 +21,6 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
-      # `mvn` e preinstalat pe ubuntu-latest.
-
       - name: Compile main app
         run: mvn -B -DskipTests compile
 
@@ -35,7 +28,6 @@ jobs:
         working-directory: notification-service
         run: mvn -B -DskipTests compile
 
-  # ===== FRONTEND: strict TypeScript type-check pe codul Angular =====
   frontend-typecheck:
     name: Frontend type-check (TypeScript)
     runs-on: ubuntu-latest
@@ -53,17 +45,12 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
 
-      # --legacy-peer-deps: necesar pentru conflictul de peer deps din Angular 21
-      # (@angular/platform-browser-dynamic@21.2.13 cere peer @angular/common@21.2.13,
-      # in timp ce lockfile-ul are 21.2.11).
+      # --legacy-peer-deps necesar pentru conflictul de peer deps din Angular 21.
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      # tsconfig.app.json e cel folosit de Angular pentru codul de productie din src/.
-      # --noEmit => doar verifica tipurile, nu emite nimic pe disc.
       - name: TypeScript strict type-check
         run: npx tsc --noEmit -p tsconfig.app.json
 
-      # Verificare suplimentara: si codul de teste (spec.ts + cy.ts) sa fie typesafe.
       - name: TypeScript type-check (tests)
         run: npx tsc --noEmit -p tsconfig.spec.json

@@ -17,8 +17,6 @@ import com.utcn.demo.dto.Responses.AnswerResponseDTO;
 import java.util.List;
 import java.util.Objects;
 
-// AnswerService — conține logica de business pentru răspunsuri (Answer).
-// Un Answer este un răspuns la un Topic (întrebare pe forum).
 @Service
 @RequiredArgsConstructor
 public class AnswerService {
@@ -56,7 +54,7 @@ public class AnswerService {
 
     private Answer createAnswerEntity(AnswerRequestDTO dto, Topic topic, Long currentUserId) {
         Answer answer = answerMapper.toEntity(dto);
-        answer.setCreatedAt(java.time.LocalDateTime.now()); //this may be optional
+        answer.setCreatedAt(java.time.LocalDateTime.now());
         answer.setTopic(topic);
         answer.setPictureUrl(dto.pictureUrl());
 
@@ -90,12 +88,10 @@ public class AnswerService {
                         throw new RuntimeException("Only the author or a moderator can edit this answer!");
                     }
 
-                    // Actualizăm textul
                     if (dto.text() != null && !dto.text().trim().isEmpty()) {
                         answer.setTextContent(dto.text());
                     }
 
-                    // Actualizăm poza
                     if (dto.pictureUrl() != null && !dto.pictureUrl().trim().isEmpty()) {
                         answer.setPictureUrl(dto.pictureUrl());
                     }
@@ -122,8 +118,6 @@ public class AnswerService {
         );
     }
 
-    // Permite acțiunea dacă utilizatorul curent este autorul SAU dacă are rolul de MODERATOR.
-    // Moderatorii pot edita/șterge răspunsurile oricărui utilizator.
     private boolean isAuthorOrModerator(Long authorId, Long currentUserId) {
         if (Objects.equals(authorId, currentUserId)) {
             return true;
