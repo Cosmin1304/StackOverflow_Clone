@@ -14,7 +14,7 @@ jobs:
   # ===== BACKEND: compile-check pe ambele module Maven =====
   backend-compile:
     name: Backend compile check (Java)
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,7 +26,11 @@ jobs:
           java-version: '17'
           cache: 'maven'
 
-      # Folosim `mvn` preinstalat pe ubuntu-latest (cleaner decat ./mvnw din subdirector).
+      # Maven explicit (pe self-hosted nu e garantat ca exista la nivel de OS).
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v5
+        with:
+          maven-version: 3.9.6
 
       - name: Compile main app
         run: mvn -B -DskipTests compile
@@ -38,7 +42,7 @@ jobs:
   # ===== FRONTEND: strict TypeScript type-check pe codul Angular =====
   frontend-typecheck:
     name: Frontend type-check (TypeScript)
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     defaults:
       run:
         working-directory: frontend
