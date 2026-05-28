@@ -53,8 +53,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: 'frontend/package-lock.json'
 
+      # --legacy-peer-deps: necesar pentru conflictul de peer deps din Angular 21
+      # (@angular/platform-browser-dynamic@21.2.13 cere peer @angular/common@21.2.13,
+      # in timp ce lockfile-ul are 21.2.11).
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # tsconfig.app.json e cel folosit de Angular pentru codul de productie din src/.
       # --noEmit => doar verifica tipurile, nu emite nimic pe disc.

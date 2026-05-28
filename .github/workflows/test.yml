@@ -54,11 +54,14 @@ jobs:
           cache-dependency-path: 'frontend/package-lock.json'
 
       # Action-ul oficial Cypress: instaleaza npm-ci + cache binar Cypress.
+      # --legacy-peer-deps: necesar pentru conflict @angular/platform-browser-dynamic@21.2.13
+      # vs @angular/common@21.2.11 (cerinta peer stricta a Angular 21).
       - name: Cypress component tests
         uses: cypress-io/github-action@v6
         with:
           working-directory: frontend
           component: true
+          install-command: npm ci --legacy-peer-deps
 
       # Pentru E2E pornim ng serve in background si asteptam sa raspunda pe :4200.
       # Test-ul auth-guard.cy.ts mock-uieste backend-ul cu cy.intercept, deci nu avem nevoie
