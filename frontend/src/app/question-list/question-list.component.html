@@ -1,6 +1,14 @@
 <div class="questions-container">
   <h2>Ultimele Întrebări</h2>
 
+  <!-- Banner pentru filtrul activ (tag / autor). Permite stergerea filtrului. -->
+  <div class="filter-banner" *ngIf="activeTag || activeAuthor"
+       style="background:#fff3cd; border:1px solid #ffeeba; padding:10px 14px; border-radius:6px; margin-bottom:12px; display:flex; align-items:center; gap:10px;">
+    <span *ngIf="activeTag">Filtrat după tag: <strong>{{ activeTag }}</strong></span>
+    <span *ngIf="activeAuthor">Filtrat după autor: <strong>{{ activeAuthor }}</strong></span>
+    <a routerLink="/" style="margin-left:auto; color:#0074cc; text-decoration:underline; cursor:pointer;">șterge filtrul</a>
+  </div>
+
   <!-- Trecem prin fiecare întrebare din lista noastră -->
   <div class="question-card" *ngFor="let q of (filteredQuestions$ | async)">
 
@@ -21,15 +29,21 @@
       <h3 class="title" (click)="goToQuestion(q.id)">{{ q.title || '[Întrebare fără titlu]'}}</h3>
       <p class="text">{{ q.text }}</p>
 
-      <!-- Lista de tag-uri -->
+      <!-- Tag-uri clickable: navigare spre /?tag=<name> -->
       <div class="tags">
-        <span class="tag" *ngFor="let tag of q.tags">{{ tag.name }}</span>
+        <a class="tag" *ngFor="let tag of q.tags"
+           routerLink="/" [queryParams]="{ tag: tag.name }"
+           style="cursor:pointer; text-decoration:none;">{{ tag.name }}</a>
       </div>
 
-      <!-- Detalii autor (Nume, Scor, Dată) -->
+      <!-- Detalii autor (Nume clickable -> filtru autor, Scor, Dată) -->
       <div class="author-info">
         <small>
-          întrebat de <strong>{{ q.author.username }}</strong>
+          întrebat de
+          <a routerLink="/" [queryParams]="{ author: q.author.username }"
+             style="color:#0074cc; text-decoration:none; cursor:pointer;">
+            <strong>{{ q.author.username }}</strong>
+          </a>
           (Scor: <span class="score">{{ q.author.score }}</span>)
           pe {{ q.createdAt | date:'medium' }}
         </small>

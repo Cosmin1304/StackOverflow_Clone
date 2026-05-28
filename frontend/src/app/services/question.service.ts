@@ -17,6 +17,14 @@ export class QuestionService {
     return this.http.get<TopicResponseDTO[]>(this.apiUrl);
   }
 
+  getQuestionsByTag(tagName: string): Observable<TopicResponseDTO[]> {
+    return this.http.get<TopicResponseDTO[]>(`${this.apiUrl}/tag/${encodeURIComponent(tagName)}`);
+  }
+
+  getQuestionsByAuthor(username: string): Observable<TopicResponseDTO[]> {
+    return this.http.get<TopicResponseDTO[]>(`${this.apiUrl}/author/${encodeURIComponent(username)}`);
+  }
+
   addQuestion(topicDTO: TopicRequestDTO): Observable<TopicResponseDTO> {
     return this.http.post<TopicResponseDTO>(this.apiUrl, topicDTO);
   }

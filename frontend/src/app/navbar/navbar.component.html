@@ -20,6 +20,7 @@
 
         <button class="btn-logout" routerLink="/profile">Profil</button>
         <button class="btn-ask" routerLink="/ask">Ask Question</button>
+        <button class="btn-logout" (click)="goToMyQuestions()">Întrebările Mele</button>
         <!-- Vizibil STRICT doar pentru moderatori -->
         <button *ngIf="authService.isModerator()" class="btn-moderator" routerLink="/moderator">Moderator Panel</button>
         <button class="btn-logout" (click)="onLogout()">Log out</button>

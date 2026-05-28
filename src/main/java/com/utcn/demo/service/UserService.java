@@ -37,7 +37,37 @@ public class UserService {
         if (userRequestDTO == null)
             return null;
         User user = userMapper.toEntity(userRequestDTO);
+        // CRITIC: parola NU se salvează niciodată în clar — o hash-uim cu BCrypt.
+        if (userRequestDTO.password() != null) {
+            user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
+        }
         return userMapper.toResponse(userRepository.save(user));
+    }
+
+    // Verifică credențialele și întoarce DTO-ul user-ului dacă parola e corectă.
+    // Conține un fallback de migrare: dacă în DB există o parolă veche în clar (de la
+    // versiunea anterioară a aplicației, înainte de a hash-ui la register), o acceptăm
+    // o singură dată și o re-salvăm hash-uită — așa nu rămân conturile existente blocate.
+    @Transactional
+    public Optional<UserResponseDTO> authenticate(String username, String rawPassword) {
+        if (username == null || rawPassword == null) return Optional.empty();
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) return Optional.empty();
+
+        User user = userOpt.get();
+        String stored = user.getPasswordHash();
+        if (stored == null) return Optional.empty();
+
+        if (passwordEncoder.matches(rawPassword, stored)) {
+            return Optional.of(userMapper.toResponse(user));
+        }
+        // Legacy: parolă în clar (egală cu cea trimisă) => o acceptăm și o migrăm la hash.
+        if (stored.equals(rawPassword)) {
+            user.setPasswordHash(passwordEncoder.encode(rawPassword));
+            userRepository.save(user);
+            return Optional.of(userMapper.toResponse(user));
+        }
+        return Optional.empty();
     }
 
 

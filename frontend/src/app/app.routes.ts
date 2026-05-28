@@ -13,11 +13,11 @@ import { ModeratorPanelComponent } from './moderator-panel/moderator-panel.compo
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'edit-question/:id', component: EditQuestionComponent },
 
   { path: '', component: QuestionListComponent, canActivate: [authGuard] },
   { path: 'ask', component: AskQuestionComponent, canActivate: [authGuard] },
   { path: 'question/:id', component: QuestionDetailComponent, canActivate: [authGuard] },
-  { path: 'profile', component: ProfileComponent },
+  { path: 'edit-question/:id', component: EditQuestionComponent, canActivate: [authGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'moderator', component: ModeratorPanelComponent, canActivate: [moderatorGuard] },
   ];

@@ -1,39 +1,57 @@
-import {Component, inject, OnInit, Input} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { SearchService } from '../services/search.service';
 import { QuestionService } from '../services/question.service';
 import { TopicResponseDTO } from '../models/models';
-import { map, combineLatest, startWith, Observable } from 'rxjs';
+import { map, combineLatest, startWith, Observable, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-question-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './question-list.component.html',
   styleUrls: ['./question-list.component.scss']
 })
-export class QuestionListComponent implements OnInit{
+export class QuestionListComponent implements OnInit {
   filteredQuestions$!: Observable<TopicResponseDTO[]>;
 
+  // Filtru activ (afisat in banner). Setate de queryParams.
+  activeTag: string | null = null;
+  activeAuthor: string | null = null;
+
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private searchService = inject(SearchService);
   private questionService = inject(QuestionService);
 
   ngOnInit() {
+    // Sursa intrebarilor depinde de queryParams (?tag=... / ?author=...).
+    // Cautarea text se aplica apoi local peste rezultat.
     this.filteredQuestions$ = combineLatest([
-      this.questionService.getQuestions(),
+      this.route.queryParamMap,
       this.searchService.currentSearchTerm.pipe(startWith(''))
     ]).pipe(
-      map(([questions, term]) => this.getFilteredList(questions, term))
+      switchMap(([params, term]) => {
+        const tag = params.get('tag');
+        const author = params.get('author');
+        this.activeTag = tag;
+        this.activeAuthor = author;
+
+        const source$ = tag
+          ? this.questionService.getQuestionsByTag(tag)
+          : author
+            ? this.questionService.getQuestionsByAuthor(author)
+            : this.questionService.getQuestions();
+
+        return source$.pipe(map(questions => this.getFilteredList(questions, term)));
+      })
     );
   }
 
-  // Extragem logica de filtrare într-o funcție pură care returnează un array
   private getFilteredList(questions: TopicResponseDTO[], term: string): TopicResponseDTO[] {
     if (!term) return questions;
     const lowerCaseTerm = term.toLowerCase();
-
     return questions.filter(q =>
       q.title.toLowerCase().includes(lowerCaseTerm) ||
       q.text.toLowerCase().includes(lowerCaseTerm)
@@ -43,5 +61,4 @@ export class QuestionListComponent implements OnInit{
   goToQuestion(id: number) {
     this.router.navigate(['/question', id]);
   }
-
 }

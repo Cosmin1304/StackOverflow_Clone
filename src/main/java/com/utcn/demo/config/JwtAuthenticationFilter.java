@@ -1,5 +1,7 @@
 package com.utcn.demo.config;
 
+import com.utcn.demo.entity.User;
+import com.utcn.demo.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,12 +14,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Component
 @lombok.RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -39,8 +43,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // 3. Validam token-ul
+            // 2. Validam token-ul
             if (jwtUtil.validateToken(jwt, username)) {
+
+                // 3. Daca utilizatorul e BANAT, blocam orice request autentificat — chiar daca
+                // token-ul e inca valid. Asigura "cannot access the application neither via url".
+                Optional<User> userOpt = userRepository.findByUsername(username);
+                if (userOpt.isPresent() && Boolean.TRUE.equals(userOpt.get().getIsBanned())) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"banned\",\"message\":\"Contul tau a fost banat.\"}");
+                    return;
+                }
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         username, null, new ArrayList<>()); // Aici vor veni rolurile mai târziu
 

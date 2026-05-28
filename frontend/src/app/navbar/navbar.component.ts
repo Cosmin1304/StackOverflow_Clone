@@ -30,4 +30,12 @@ export class NavbarComponent {
     this.authService.logout(); // Schimbă starea în aplicație
     this.router.navigate(['/login']); // Te trimite la pagina de Login
   }
+
+  // Filtru "Întrebările mele" — navigare spre / cu queryParam author=<username>.
+  goToMyQuestions() {
+    const u = this.authService.getCurrentUser();
+    if (u) {
+      this.router.navigate(['/'], { queryParams: { author: u.username } });
+    }
+  }
 }
