@@ -23,6 +23,9 @@ target/
 *.iml
 *.ipr
 *.xml
+# Important: NU ignora pom.xml-urile (Maven). *.xml de mai sus catches *all* XMLs;
+# whitelist-ul explicit asigura ca toate pom.xml din proiect sunt tracked.
+!**/pom.xml
 
 ### NetBeans ###
 /nbproject/private/
