@@ -1,0 +1,66 @@
+name: Lint & Code Quality
+
+# Static analysis pe ambele jumatati ale aplicatiei.
+# Backend: compilatorul Java (catches type errors, missing imports, generics issues).
+# Frontend: TypeScript strict type-check pe sursele Angular (catches type errors,
+# unused imports, missing properties, signature mismatches).
+on:
+  push:
+    branches: [main, cosmin]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ===== BACKEND: compile-check pe ambele module Maven =====
+  backend-compile:
+    name: Backend compile check (Java)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      # Folosim `mvn` preinstalat pe ubuntu-latest (cleaner decat ./mvnw din subdirector).
+
+      - name: Compile main app
+        run: mvn -B -DskipTests compile
+
+      - name: Compile notification-service
+        working-directory: notification-service
+        run: mvn -B -DskipTests compile
+
+  # ===== FRONTEND: strict TypeScript type-check pe codul Angular =====
+  frontend-typecheck:
+    name: Frontend type-check (TypeScript)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # tsconfig.app.json e cel folosit de Angular pentru codul de productie din src/.
+      # --noEmit => doar verifica tipurile, nu emite nimic pe disc.
+      - name: TypeScript strict type-check
+        run: npx tsc --noEmit -p tsconfig.app.json
+
+      # Verificare suplimentara: si codul de teste (spec.ts + cy.ts) sa fie typesafe.
+      - name: TypeScript type-check (tests)
+        run: npx tsc --noEmit -p tsconfig.spec.json
